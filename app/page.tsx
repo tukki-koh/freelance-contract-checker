@@ -187,7 +187,7 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/signup" className="block text-center bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-medium transition-colors">
+              <Link href="/signup?next=/pricing" className="block text-center bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-medium transition-colors">
                 500円で診断する
               </Link>
             </div>
@@ -220,7 +220,7 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/signup" className="block text-center bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-xl font-medium transition-colors">
+              <Link href="/signup?next=/pricing" className="block text-center bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-xl font-medium transition-colors">
                 法人プランを始める
               </Link>
             </div>
