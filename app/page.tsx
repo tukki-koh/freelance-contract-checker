@@ -1,36 +1,48 @@
 import Link from 'next/link'
-import { Shield, FileSearch, CheckCircle, AlertTriangle, ArrowRight, Zap, Building2, User } from 'lucide-react'
+import {
+  Shield, FileSearch, CheckCircle, AlertTriangle, ArrowRight,
+  Zap, Building2, User, Clock, BadgeCheck, ChevronDown
+} from 'lucide-react'
 
-const features = [
+// ================================================================
+// データ定義
+// ================================================================
+
+const riskItems = [
   {
-    icon: FileSearch,
-    title: 'PDF・画像・テキスト対応',
-    description: '契約書のPDF、スキャン画像、テキストをそのままアップロードするだけ。形式を選ばず即座に分析できます。',
+    law: 'フリーランス新法 第4条',
+    violation: '支払期日60日超の契約',
+    penalty: '行政指導・企業名公表',
+    severity: 'critical',
   },
   {
-    icon: Shield,
-    title: 'フリーランス新法準拠',
-    description: '特定受託事業者に係る取引の適正化等に関する法律の全条項に基づいて違反リスクを判定します。',
+    law: 'フリーランス新法 第5条',
+    violation: '無償修正の強要・買い叩き',
+    penalty: '是正命令・50万円以下の過料',
+    severity: 'high',
   },
   {
-    icon: AlertTriangle,
-    title: '違反箇所を具体的に指摘',
-    description: '法律違反の疑いがある箇所を抜粋して表示し、改善案まで提示。契約交渉の根拠として活用できます。',
+    law: 'フリーランス新法 第16条',
+    violation: '30日前予告なしの即日解除',
+    penalty: '行政指導・損害賠償請求リスク',
+    severity: 'high',
   },
   {
-    icon: CheckCircle,
-    title: 'リスクレベル4段階評価',
-    description: '低・中・高・重大の4段階でリスクを評価。一目で契約書の安全性が把握できます。',
-  },
-  {
-    icon: Zap,
-    title: '最速30秒で分析完了',
-    description: 'Claude AIが高速に分析。弁護士に相談する前の一次チェックとして最適です。',
+    law: '下請法 第4条',
+    violation: '報酬の一方的減額',
+    penalty: '公正取引委員会による勧告・社名公表',
+    severity: 'critical',
   },
 ]
 
+const steps = [
+  { step: '01', title: '契約書を貼り付ける', desc: 'PDF・画像・テキストに対応。コピペするだけ。' },
+  { step: '02', title: 'AIが全条項を分析', desc: 'フリーランス新法・下請法の全条項に照合。約30秒。' },
+  { step: '03', title: '違反箇所を条文番号付きで確認', desc: '修正案まで出力。交渉の根拠にそのまま使えます。' },
+]
+
 const checks = [
-  '取引条件の明示義務（第3条）',
+  '取引条件の書面明示義務（第3条）',
   '報酬支払期日60日以内（第4条）',
   '受領拒否・買い叩き等の禁止行為（第5条）',
   '育児・介護等への配慮義務（第13条）',
@@ -38,9 +50,57 @@ const checks = [
   '中途解除30日前予告義務（第16条）',
 ]
 
+const faqs = [
+  {
+    q: 'AIの診断精度はどれくらいですか？',
+    a: '最新のClaude AIが、フリーランス新法・下請法の全条項に照らして診断します。条文番号を根拠に判定するため、感覚的な判断ではなく法律の文言に基づいた結果が得られます。ただし本ツールはAIによる一次チェックであり、法律相談ではありません。重要な契約は弁護士への相談を推奨します。',
+  },
+  {
+    q: '返金はできますか？',
+    a: '診断結果に問題があった場合（例：AIが結果を出力できなかったなど技術的な不具合）は、購入日から7日以内に support@freelance-contract-checker.vercel.app へご連絡ください。個別に対応します。なお、「違反が見つからなかった」など診断結果の内容に関する返金はお受けできません。',
+  },
+  {
+    q: 'どんな形式の契約書でも診断できますか？',
+    a: 'PDF・画像（JPG/PNG）・テキスト貼り付けに対応しています。スキャンしたPDFや画像も、OCR処理でテキストを抽出して診断します。ただし、文字が極端に小さい・画質が非常に低い場合は精度が下がることがあります。',
+  },
+  {
+    q: '診断結果は保存できますか？',
+    a: '単発プラン（500円）・法人プラン（月額2,980円）ともに、診断結果は永久保存されます。ダッシュボードからいつでも過去の診断結果を確認できます。',
+  },
+  {
+    q: '契約書の内容は外部に漏れませんか？',
+    a: '入力された契約書のテキストは診断処理にのみ使用し、第三者に提供・公開することはありません。通信はすべてSSL暗号化されています。',
+  },
+  {
+    q: '弁護士に相談するのとどう違いますか？',
+    a: '弁護士への法律相談は1時間あたり1〜3万円が相場です。本ツールは500円で「どの条項が・なぜ・どう問題か」を30秒で特定する一次チェックツールです。重要な契約の最終確認は弁護士へ、日常的な契約書チェックには本ツールをご活用ください。',
+  },
+]
+
+const SeverityBadge = ({ severity }: { severity: string }) => {
+  if (severity === 'critical') {
+    return (
+      <span className="inline-flex items-center gap-1 bg-red-500/15 text-red-400 text-xs font-bold px-2 py-0.5 rounded-full border border-red-500/30">
+        重大
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex items-center gap-1 bg-amber-500/15 text-amber-400 text-xs font-bold px-2 py-0.5 rounded-full border border-amber-500/30">
+      高リスク
+    </span>
+  )
+}
+
+// ================================================================
+// ページ本体
+// ================================================================
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-slate-950">
+
+      {/* ヘッダー */}
       <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -50,15 +110,12 @@ export default function LandingPage() {
             <span className="text-sm font-bold text-slate-100">契約書チェッカー</span>
           </div>
           <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="text-sm text-slate-400 hover:text-slate-200 transition-colors"
-            >
+            <Link href="/login" className="text-sm text-slate-400 hover:text-slate-200 transition-colors">
               ログイン
             </Link>
             <Link
               href="/signup"
-              className="text-sm bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition-colors"
+              className="text-sm bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition-colors font-medium"
             >
               無料で始める
             </Link>
@@ -67,44 +124,64 @@ export default function LandingPage() {
       </header>
 
       <main>
-        <section className="max-w-6xl mx-auto px-6 py-24 text-center">
-          <div className="inline-flex items-center gap-2 bg-blue-600/10 border border-blue-600/20 rounded-full px-4 py-1.5 text-xs font-medium text-blue-400 mb-8">
-            <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
-            フリーランス新法（2024年11月施行）対応
+        {/* ================================================================
+            ① ファーストビュー
+        ================================================================ */}
+        <section className="max-w-6xl mx-auto px-6 pt-20 pb-16 text-center">
+          {/* 権威性バッジ */}
+          <div className="inline-flex items-center gap-2 bg-blue-600/10 border border-blue-600/20 rounded-full px-4 py-1.5 text-xs font-bold text-blue-400 mb-6">
+            <BadgeCheck className="h-3.5 w-3.5" />
+            2026年最新ガイドライン完全準拠｜フリーランス新法・下請法 全条項対応
           </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-100 leading-tight mb-6">
-            契約書の法律違反リスクを<br />
-            <span className="text-blue-400">AIが即座に判定</span>
+
+          {/* メインキャッチコピー：3秒で何ができるかわかる */}
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-100 leading-tight mb-5">
+            その契約書、<span className="text-red-400">違法条項</span>が<br />
+            <span className="text-blue-400">30秒</span>で見つかります
           </h1>
-          <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-            フリーランス新法に基づき、契約書のPDF・画像・テキストをアップロードするだけで
-            違反リスクを自動チェック。フリーランスの権利を守る一次チェックツールです。
+
+          <p className="text-lg text-slate-300 max-w-2xl mx-auto mb-4 leading-relaxed">
+            フリーランス新法・下請法の<strong>全条項</strong>に照らして契約書を自動診断。<br />
+            違反箇所を<strong>条文番号付き</strong>で指摘し、<strong>修正案まで</strong>出力します。
           </p>
+
+          {/* 社会的証明 */}
+          <p className="text-sm text-slate-500 mb-10">
+            弁護士相談費用の<strong className="text-slate-300">1/100以下</strong>のコストで、今日中に確認できます
+          </p>
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/signup"
-              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-medium text-base transition-all shadow-lg shadow-blue-600/20"
+              href="/signup?next=/pricing"
+              className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold text-base transition-all shadow-lg shadow-blue-600/25"
             >
-              無料で契約書をチェック
+              500円で今すぐ診断する
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
-              href="/login"
-              className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-8 py-4 rounded-xl font-medium text-base transition-all border border-slate-700"
+              href="/signup"
+              className="inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-8 py-4 rounded-xl font-medium text-base transition-all border border-slate-700"
             >
-              ログインして続ける
+              まず無料で試してみる
             </Link>
           </div>
+
+          <p className="text-xs text-slate-600 mt-4">
+            ※ 無料登録で1回お試し可能。クレジットカード不要。
+          </p>
         </section>
 
-        <section className="border-y border-slate-800 bg-slate-900/50 py-12">
+        {/* ================================================================
+            ② 権威性：対応法律・準拠ガイドライン
+        ================================================================ */}
+        <section className="border-y border-slate-800 bg-slate-900/50 py-10">
           <div className="max-w-6xl mx-auto px-6">
-            <p className="text-center text-xs font-medium text-slate-500 uppercase tracking-wider mb-8">
-              チェック対象条項
+            <p className="text-center text-xs font-bold text-slate-500 uppercase tracking-widest mb-6">
+              2026年最新ガイドライン完全準拠｜チェック対象条項
             </p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {checks.map((check) => (
-                <div key={check} className="flex items-center gap-2 text-sm text-slate-400">
+                <div key={check} className="flex items-center gap-2 text-sm text-slate-300">
                   <CheckCircle className="h-4 w-4 text-green-400 shrink-0" />
                   {check}
                 </div>
@@ -113,41 +190,106 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="max-w-6xl mx-auto px-6 py-24">
-          <h2 className="text-2xl font-bold text-slate-100 text-center mb-12">
-            フリーランスの契約リスクを見逃さない
-          </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map(({ icon: Icon, title, description }) => (
+        {/* ================================================================
+            ③ リスクの可視化：放置するとどうなるか
+        ================================================================ */}
+        <section className="max-w-6xl mx-auto px-6 py-20">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-full px-4 py-1.5 text-xs font-bold text-red-400 mb-4">
+              <AlertTriangle className="h-3.5 w-3.5" />
+              放置すると取り返しのつかないリスクがあります
+            </div>
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-100 mb-4">
+              「知らなかった」では済まない<br className="hidden md:block" />法律違反の現実
+            </h2>
+            <p className="text-slate-400 text-sm max-w-xl mx-auto">
+              フリーランス新法・下請法に違反した契約書にサインすることは、
+              あなた自身の収益・権利・将来の取引に直接影響します。
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4 mb-10">
+            {riskItems.map((item) => (
               <div
-                key={title}
-                className="rounded-xl border border-slate-700/50 bg-slate-800/50 p-6 hover:border-slate-600 transition-colors"
+                key={item.law}
+                className="rounded-xl border border-slate-700/50 bg-slate-800/50 p-5"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600/20 mb-4">
-                  <Icon className="h-5 w-5 text-blue-400" />
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <span className="text-xs text-slate-500 font-mono">{item.law}</span>
+                  <SeverityBadge severity={item.severity} />
                 </div>
-                <h3 className="text-base font-semibold text-slate-100 mb-2">{title}</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">{description}</p>
+                <p className="text-sm font-semibold text-slate-200 mb-1">{item.violation}</p>
+                <p className="text-xs text-slate-400">
+                  <span className="text-red-400 font-medium">→ </span>{item.penalty}
+                </p>
               </div>
             ))}
           </div>
+
+          {/* 解決策への橋渡し */}
+          <div className="rounded-2xl border border-blue-500/30 bg-blue-500/5 p-8 text-center">
+            <p className="text-slate-300 text-sm mb-2">
+              上記のリスクを<strong className="text-white">サインする前に</strong>発見できれば、交渉・修正・拒否ができます。
+            </p>
+            <p className="text-slate-400 text-xs mb-6">
+              AIが契約書の全条項を自動でスキャンし、リスクのある箇所を条文番号付きで特定します。
+            </p>
+            <Link
+              href="/signup?next=/pricing"
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold text-sm transition-all"
+            >
+              500円でリスクを全て可視化する
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
         </section>
 
-        {/* 料金セクション */}
-        <section className="max-w-6xl mx-auto px-6 py-24">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-100 mb-4">シンプルな料金プラン</h2>
-            <p className="text-slate-400">まずは無料で登録。必要に応じてアップグレード。</p>
+        {/* ================================================================
+            使い方：3ステップ
+        ================================================================ */}
+        <section className="border-y border-slate-800 bg-slate-900/30 py-20">
+          <div className="max-w-5xl mx-auto px-6">
+            <h2 className="text-2xl font-bold text-slate-100 text-center mb-12">
+              使い方はたった3ステップ
+            </h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              {steps.map(({ step, title, desc }) => (
+                <div key={step} className="text-center">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-blue-600/20 border border-blue-600/30 text-blue-400 font-extrabold text-lg mb-4">
+                    {step}
+                  </div>
+                  <h3 className="text-sm font-bold text-slate-100 mb-2">{title}</h3>
+                  <p className="text-xs text-slate-400 leading-relaxed">{desc}</p>
+                </div>
+              ))}
+            </div>
+            <div className="text-center mt-10">
+              <div className="inline-flex items-center gap-2 text-sm text-slate-400">
+                <Clock className="h-4 w-4 text-green-400" />
+                診断所要時間：約30秒
+              </div>
+            </div>
           </div>
+        </section>
+
+        {/* ================================================================
+            料金プラン
+        ================================================================ */}
+        <section className="max-w-6xl mx-auto px-6 py-20">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-100 mb-3">シンプルな料金プラン</h2>
+            <p className="text-slate-400 text-sm">まず無料で登録。必要に応じてアップグレード。</p>
+          </div>
+
           <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {/* 無料プラン */}
+            {/* 無料 */}
             <div className="rounded-2xl border border-slate-700/50 bg-slate-800/50 p-8 flex flex-col">
               <div className="flex items-center gap-2 mb-4">
                 <User className="h-5 w-5 text-slate-400" />
                 <span className="text-sm font-medium text-slate-400">無料プラン</span>
               </div>
               <div className="mb-6">
-                <span className="text-4xl font-bold text-slate-100">¥0</span>
+                <span className="text-4xl font-extrabold text-slate-100">¥0</span>
               </div>
               <ul className="space-y-3 mb-8 flex-1">
                 {['会員登録無料', '診断1回お試し', '結果の閲覧・保存'].map(f => (
@@ -157,22 +299,25 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/signup" className="block text-center bg-slate-700 hover:bg-slate-600 text-slate-100 py-3 rounded-xl font-medium transition-colors">
+              <Link href="/signup" className="block text-center bg-slate-700 hover:bg-slate-600 text-slate-100 py-3 rounded-xl font-medium transition-colors text-sm">
                 無料で始める
               </Link>
             </div>
 
-            {/* 単発プラン */}
+            {/* 単発 */}
             <div className="rounded-2xl border border-blue-600/50 bg-blue-600/10 p-8 flex flex-col relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <span className="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">おすすめ</span>
+              </div>
               <div className="flex items-center gap-2 mb-4">
                 <FileSearch className="h-5 w-5 text-blue-400" />
                 <span className="text-sm font-medium text-blue-400">単発診断</span>
               </div>
-              <div className="mb-2">
-                <span className="text-4xl font-bold text-slate-100">¥500</span>
+              <div className="mb-1">
+                <span className="text-4xl font-extrabold text-slate-100">¥500</span>
                 <span className="text-slate-400 text-sm ml-2">/ 1回</span>
               </div>
-              <p className="text-xs text-slate-500 mb-6">弁護士相談の1/100以下のコスト</p>
+              <p className="text-xs text-slate-500 mb-6">弁護士相談の1/60以下のコスト</p>
               <ul className="space-y-3 mb-8 flex-1">
                 {[
                   '全条項チェック（フリーランス新法・下請法）',
@@ -187,22 +332,19 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/signup?next=/pricing" className="block text-center bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-medium transition-colors">
-                500円で診断する
+              <Link href="/signup?next=/pricing" className="block text-center bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold transition-colors text-sm">
+                500円で今すぐ診断する
               </Link>
             </div>
 
-            {/* 法人プラン */}
-            <div className="rounded-2xl border border-purple-600/50 bg-purple-600/10 p-8 flex flex-col relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full">人気</span>
-              </div>
+            {/* 法人 */}
+            <div className="rounded-2xl border border-purple-600/50 bg-purple-600/10 p-8 flex flex-col">
               <div className="flex items-center gap-2 mb-4">
                 <Building2 className="h-5 w-5 text-purple-400" />
                 <span className="text-sm font-medium text-purple-400">法人向け定額</span>
               </div>
-              <div className="mb-2">
-                <span className="text-4xl font-bold text-slate-100">¥2,980</span>
+              <div className="mb-1">
+                <span className="text-4xl font-extrabold text-slate-100">¥2,980</span>
                 <span className="text-slate-400 text-sm ml-2">/ 月</span>
               </div>
               <p className="text-xs text-slate-500 mb-6">月6件以上の診断で元が取れる</p>
@@ -220,35 +362,84 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/signup?next=/pricing" className="block text-center bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-xl font-medium transition-colors">
+              <Link href="/signup?next=/pricing" className="block text-center bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-xl font-bold transition-colors text-sm">
                 法人プランを始める
               </Link>
             </div>
           </div>
         </section>
 
-        <section className="max-w-3xl mx-auto px-6 py-16 text-center">
-          <div className="rounded-2xl border border-blue-600/30 bg-blue-600/10 p-12">
-            <h2 className="text-2xl font-bold text-slate-100 mb-4">
-              今すぐ契約書をチェックする
-            </h2>
-            <p className="text-slate-400 text-sm mb-8">
-              アカウント登録無料。まずは1回無料でお試しください。
+        {/* ================================================================
+            ④ FAQ：心理的ハードルを下げる
+        ================================================================ */}
+        <section className="border-t border-slate-800 bg-slate-900/30 py-20">
+          <div className="max-w-3xl mx-auto px-6">
+            <h2 className="text-2xl font-bold text-slate-100 text-center mb-3">よくある質問</h2>
+            <p className="text-slate-400 text-sm text-center mb-12">
+              購入前の不安を解消します
             </p>
-            <Link
-              href="/signup"
-              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-medium transition-all shadow-lg shadow-blue-600/20"
-            >
-              無料アカウントを作成
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+
+            <div className="space-y-4">
+              {faqs.map(({ q, a }) => (
+                <details
+                  key={q}
+                  className="group rounded-xl border border-slate-700/50 bg-slate-800/50 overflow-hidden"
+                >
+                  <summary className="flex items-center justify-between gap-4 px-6 py-4 cursor-pointer list-none">
+                    <span className="text-sm font-medium text-slate-200">{q}</span>
+                    <ChevronDown className="h-4 w-4 text-slate-400 shrink-0 group-open:rotate-180 transition-transform" />
+                  </summary>
+                  <div className="px-6 pb-5 pt-1">
+                    <p className="text-sm text-slate-400 leading-relaxed">{a}</p>
+                  </div>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ================================================================
+            最終CTA
+        ================================================================ */}
+        <section className="max-w-3xl mx-auto px-6 py-20 text-center">
+          <div className="rounded-2xl border border-blue-600/30 bg-blue-600/10 p-12">
+            <div className="inline-flex items-center gap-2 bg-blue-600/20 border border-blue-600/30 rounded-full px-3 py-1 text-xs font-bold text-blue-400 mb-6">
+              <Zap className="h-3 w-3" />
+              診断所要時間：約30秒
+            </div>
+            <h2 className="text-2xl font-bold text-slate-100 mb-3">
+              サインする前の500円が、<br />あなたの権利を守ります
+            </h2>
+            <p className="text-slate-400 text-sm mb-8 leading-relaxed">
+              違反条項を見つけてから交渉するのと、<br />
+              知らずにサインしてしまうのでは、結果が全く変わります。
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link
+                href="/signup?next=/pricing"
+                className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold transition-all shadow-lg shadow-blue-600/20"
+              >
+                500円で今すぐ診断する
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/signup"
+                className="inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 px-8 py-4 rounded-xl font-medium transition-all border border-slate-700 text-sm"
+              >
+                まず無料で試してみる
+              </Link>
+            </div>
+            <p className="text-xs text-slate-600 mt-4">
+              ※ 7日以内の技術的不具合は返金対応。無料登録はカード不要。
+            </p>
           </div>
         </section>
       </main>
 
       <footer className="border-t border-slate-800 py-8">
-        <div className="max-w-6xl mx-auto px-6 text-center text-xs text-slate-600">
-          <p>本サービスは法律相談ではなく、一次チェックツールとして提供しています。重要な契約については必ず弁護士にご相談ください。</p>
+        <div className="max-w-6xl mx-auto px-6 text-center text-xs text-slate-600 space-y-1">
+          <p>本サービスはAIによる一次チェックツールであり、法律相談ではありません。重要な契約については必ず弁護士にご相談ください。</p>
+          <p>© 2026 契約書チェッカー｜フリーランス新法・下請法 2026年最新ガイドライン準拠</p>
         </div>
       </footer>
     </div>
