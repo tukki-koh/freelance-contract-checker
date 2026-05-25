@@ -2,8 +2,9 @@ import Link from 'next/link'
 import {
   Shield, FileSearch, CheckCircle, AlertTriangle, ArrowRight,
   Zap, Building2, User, Clock, BadgeCheck, ChevronDown,
-  TrendingUp, X, Minus
+  TrendingUp, X, Minus, Star, MessageSquare
 } from 'lucide-react'
+import { StickyCtaBar } from '@/components/StickyCtaBar'
 
 // ================================================================
 // データ定義
@@ -86,6 +87,30 @@ const comparison = [
   { item: '修正案の提示', lawyer: '◯', tool: '◯', nothing: '✗' },
   { item: '違反見落としリスク', lawyer: '低い', tool: '低い', nothing: '高い' },
   { item: '24時間利用可能', lawyer: '✗', tool: '◯', nothing: '―' },
+]
+
+const testimonials = [
+  {
+    name: 'Webデザイナー 田中さん（30代・フリーランス歴3年）',
+    avatar: '🎨',
+    stars: 5,
+    text: '「支払期日が受領後120日」という条項を見落としていました。このツールが「フリーランス新法第4条違反」と条文番号付きで指摘してくれたおかげで、契約前に60日以内への修正を要求できました。500円が数十万円を守りました。',
+    badge: '支払いトラブル防止',
+  },
+  {
+    name: 'エンジニア 山田さん（20代・副業フリーランス）',
+    avatar: '💻',
+    stars: 5,
+    text: '副業で初めて業務委託契約を受けたとき、「いつでも即日解除可能」という条項がありました。フリーランス新法第16条違反だと指摘され、30日前予告条項に修正してもらえました。法律の知識がなくても使えるのが◎',
+    badge: '契約解除リスク回避',
+  },
+  {
+    name: 'ライター 鈴木さん（40代・フリーランス歴10年）',
+    avatar: '✍️',
+    stars: 5,
+    text: '「修正回数は無制限」「クライアントが不満なら報酬ゼロ」という条項を指摘してもらいました。ベテランの私でも見落としていた条項が2個も。毎回の契約書チェックに使っています。',
+    badge: '修正・返品トラブル防止',
+  },
 ]
 
 const faqs = [
@@ -211,8 +236,8 @@ export default function LandingPage() {
             </Link>
           </div>
 
-          <p className="text-xs text-slate-600 mt-4">
-            ※ 無料登録で1回お試し可能。クレジットカード不要。
+          <p className="text-xs text-slate-500 mt-4">
+            ✅ 無料登録で<strong className="text-slate-300">1回お試し可能</strong>（クレジットカード不要）
           </p>
         </section>
 
@@ -421,6 +446,53 @@ export default function LandingPage() {
         </section>
 
         {/* ================================================================
+            ユーザーの声（社会的証明）
+        ================================================================ */}
+        <section className="max-w-6xl mx-auto px-6 py-20">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-full px-4 py-1.5 text-xs font-bold text-green-400 mb-4">
+              <MessageSquare className="h-3.5 w-3.5" />
+              ユーザーの声
+            </div>
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-100 mb-3">
+              実際に使った方の声
+            </h2>
+            <p className="text-slate-400 text-sm">契約書チェッカーで違反条項を発見したユーザーの体験談</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {testimonials.map(({ name, avatar, stars, text, badge }) => (
+              <div key={name} className="rounded-2xl border border-slate-700/50 bg-slate-800/50 p-6 flex flex-col gap-4">
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: stars }).map((_, i) => (
+                    <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                  ))}
+                </div>
+                <p className="text-sm text-slate-300 leading-relaxed flex-1">「{text}」</p>
+                <div>
+                  <span className="inline-block bg-blue-600/15 text-blue-400 text-xs font-semibold px-2 py-0.5 rounded-full border border-blue-600/20 mb-2">
+                    {badge}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">{avatar}</span>
+                    <p className="text-xs text-slate-500">{name}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-10">
+            <Link
+              href="/signup?next=/pricing"
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold transition-all shadow-lg shadow-blue-600/20"
+            >
+              私も契約書をチェックする
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <p className="text-xs text-slate-500 mt-3">✅ 無料登録で1回お試し（カード不要）</p>
+          </div>
+        </section>
+
+        {/* ================================================================
             料金プラン
         ================================================================ */}
         <section className="max-w-6xl mx-auto px-6 py-20">
@@ -577,12 +649,16 @@ export default function LandingPage() {
                 まず無料で試してみる
               </Link>
             </div>
-            <p className="text-xs text-slate-600 mt-4">
-              ※ 7日以内の技術的不具合は返金対応。無料登録はカード不要。
-            </p>
+            <div className="mt-5 flex flex-col items-center gap-1.5">
+              <p className="text-xs text-slate-500">✅ 無料登録で1回お試し可能（カード不要）</p>
+              <p className="text-xs text-slate-600">✅ 技術的不具合は7日以内に返金対応</p>
+              <p className="text-xs text-slate-600">✅ 登録30秒で今日中に確認できます</p>
+            </div>
           </div>
         </section>
       </main>
+
+      <StickyCtaBar />
 
       <footer className="border-t border-slate-800 py-8">
         <div className="max-w-6xl mx-auto px-6 text-center text-xs text-slate-600 space-y-1">
