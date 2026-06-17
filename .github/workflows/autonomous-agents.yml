@@ -5,6 +5,8 @@ on:
     - cron: '0 0-15 * * *'      # エンジニア監視: JST 9〜24時 毎時
     - cron: '0 23 * * *'        # 朝サマリー: JST 毎朝8時
     - cron: '0 23 * * 0'        # CEO・法務: JST 日曜夜 = 月曜朝
+    - cron: '0 23 * * 1'        # UXライター: JST 火曜朝
+    - cron: '0 23 * * 4'        # UXライター: JST 金曜朝
   workflow_dispatch:
     inputs:
       agent:
@@ -102,7 +104,8 @@ jobs:
     name: UXライター兼コンテンツエディター
     runs-on: ubuntu-latest
     if: >
-      github.event.schedule == '0 23 * * 0' ||
+      github.event.schedule == '0 23 * * 1' ||
+      github.event.schedule == '0 23 * * 4' ||
       github.event_name == 'workflow_dispatch'
     outputs:
       report: ${{ steps.run.outputs.report }}
