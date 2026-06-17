@@ -1,0 +1,87 @@
+name: Autonomous Agents (24/7)
+
+on:
+  schedule:
+    # エンジニア監視: 毎時00分（JST 9時〜24時 = UTC 0時〜15時）
+    - cron: '0 0-15 * * *'
+    # 朝のマーケ＆秘書サマリー: 毎朝8時JST (UTC 23時 = 前日)
+    - cron: '0 23 * * *'
+  workflow_dispatch:
+    inputs:
+      agent:
+        description: '実行するエージェント (engineer/marketing/secretary/all)'
+        required: false
+        default: 'all'
+
+env:
+  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+  SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+jobs:
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # エンジニアエージェント（毎時）
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  engineer-agent:
+    name: シニアWebエンジニア
+    runs-on: ubuntu-latest
+    outputs:
+      report: ${{ steps.run.outputs.report }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Vercelデプロイ状況を取得
+        id: vercel
+        run: |
+          STATUS=$(curl -s "https://api.vercel.com/v6/deployments?projectId=prj_q7MuyvOd5gJd20ymxmM6tLHhvi8r&limit=1" \
+            -H "Authorization: Bearer $VERCEL_TOKEN" | \
+            python3 -c "import sys,json; d=json.load(sys.stdin)['deployments'][0]; print(f\"{d['state']} - {d['meta'].get('gitCommitMessage','')[:50]}\")" 2>/dev/null || echo "取得失敗")
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+
+      - name: エンジニアエージェント実行
+        id: run
+        env:
+          DEPLOY_STATUS: ${{ steps.vercel.outputs.status }}
+          ERROR_LOGS: "直近ログなし（要Sentryまたはログドレイン設定）"
+        run: |
+          chmod +x scripts/agents/engineer.sh
+          REPORT=$(bash scripts/agents/engineer.sh)
+          echo "report=$REPORT" >> $GITHUB_OUTPUT
+          echo "$REPORT"
+
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # マーケティングエージェント（毎朝）
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  marketing-agent:
+    name: マーケティング担当
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 23 * * *' || github.event_name == 'workflow_dispatch'
+    outputs:
+      report: ${{ steps.run.outputs.report }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: マーケティングエージェント実行
+        id: run
+        run: |
+          chmod +x scripts/agents/marketing.sh
+          REPORT=$(bash scripts/agents/marketing.sh)
+          echo "report=$REPORT" >> $GITHUB_OUTPUT
+          echo "$REPORT"
+
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # 秘書エージェント（朝のサマリー）
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  secretary-agent:
+    name: 専属秘書・進行管理
+    runs-on: ubuntu-latest
+    needs: [engineer-agent, marketing-agent]
+    if: always() && (github.event.schedule == '0 23 * * *' || github.event_name == 'workflow_dispatch')
+    steps:
+      - uses: actions/checkout@v4
+      - name: 秘書エージェント実行（デイリーサマリー）
+        env:
+          ENGINEER_REPORT: ${{ needs.engineer-agent.outputs.report }}
+          MARKETING_REPORT: ${{ needs.marketing-agent.outputs.report }}
+        run: |
+          chmod +x scripts/agents/secretary.sh
+          bash scripts/agents/secretary.sh
