@@ -14,7 +14,7 @@ RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
     \"system\": \"あなたはfreelance-contract-checkerの専属秘書です。各エージェントの報告を受け取り、CEOが朝一番に読むべき優先事項を3点以内にまとめてください。箇条書きで簡潔に。\",
     \"messages\": [{
       \"role\": \"user\",
-      \"content\": \"デイリーサマリー作成。エンジニア報告: $ENGINEER_REPORT。マーケ報告: $MARKETING_REPORT。日付: $TODAY\"
+      \"content\": \"デイリーサマリー作成。日付: $TODAY。エンジニア: $ENGINEER_REPORT。マーケ: $MARKETING_REPORT。CEO: $CEO_REPORT。法務: $LEGAL_REPORT。UX: $UX_REPORT\"
     }]
   }")
 

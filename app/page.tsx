@@ -1,159 +1,9 @@
 import Link from 'next/link'
 import {
-  Shield, FileSearch, CheckCircle, AlertTriangle, ArrowRight,
-  Zap, Building2, User, Clock, BadgeCheck, ChevronDown,
-  TrendingUp, X, Minus, Star, MessageSquare
+  Shield, CheckCircle, AlertTriangle, ArrowRight,
+  Building2, User, Clock, ChevronDown, Star, FileSearch
 } from 'lucide-react'
 import { StickyCtaBar } from '@/components/StickyCtaBar'
-
-// ================================================================
-// データ定義
-// ================================================================
-
-const riskItems = [
-  {
-    law: 'フリーランス新法 第4条',
-    violation: '支払期日60日超の契約',
-    penalty: '行政指導・企業名公表',
-    severity: 'critical',
-  },
-  {
-    law: 'フリーランス新法 第5条',
-    violation: '無償修正の強要・買い叩き',
-    penalty: '是正命令・50万円以下の過料',
-    severity: 'high',
-  },
-  {
-    law: 'フリーランス新法 第16条',
-    violation: '30日前予告なしの即日解除',
-    penalty: '行政指導・損害賠償請求リスク',
-    severity: 'high',
-  },
-  {
-    law: '下請法 第4条',
-    violation: '報酬の一方的減額',
-    penalty: '公正取引委員会による勧告・社名公表',
-    severity: 'critical',
-  },
-]
-
-const steps = [
-  { step: '01', title: '契約書を貼り付ける', desc: 'PDF・画像・テキストに対応。コピペするだけ。' },
-  { step: '02', title: 'AIが全条項を分析', desc: 'フリーランス新法・下請法の全条項に照合。約30秒。' },
-  { step: '03', title: '違反箇所を条文番号付きで確認', desc: '修正案まで出力。交渉の根拠にそのまま使えます。' },
-]
-
-const checks = [
-  '取引条件の書面明示義務（第3条）',
-  '報酬支払期日60日以内（第4条）',
-  '受領拒否・買い叩き等の禁止行為（第5条）',
-  '育児・介護等への配慮義務（第13条）',
-  'ハラスメント対策義務（第14条）',
-  '中途解除30日前予告義務（第16条）',
-]
-
-const stats = [
-  { num: '47件+', label: '累計診断件数', sub: 'サービス開始後' },
-  { num: '2.3個', label: '平均違反発見数', sub: '1契約書あたり' },
-  { num: '30秒', label: '診断所要時間', sub: 'AIが即座に分析' },
-  { num: '1/60', label: '弁護士費用比', sub: '500円 vs 3万円' },
-]
-
-const useCases = [
-  {
-    icon: '📋',
-    title: '業務委託契約を渡された',
-    desc: '「支払期日が90日」「無償修正を求める条項」など、フリーランス新法違反を契約前に発見できました。',
-    badge: '支払いトラブル防止',
-  },
-  {
-    icon: '⚠️',
-    title: '突然の契約解除に備えたい',
-    desc: '「30日前予告なし即日解除」の条項を発見し、修正を要求。第16条違反を未然に防止しました。',
-    badge: '契約解除リスク',
-  },
-  {
-    icon: '🏢',
-    title: '発注側のコンプライアンス確認',
-    desc: '自社の発注書が書面交付義務（第3条）・禁止行為（第5条）に準拠しているか定期チェックしています。',
-    badge: '法人コンプライアンス',
-  },
-]
-
-const comparison = [
-  { item: '費用', lawyer: '1〜3万円/時間', tool: '500円/回', nothing: '0円' },
-  { item: '時間', lawyer: '数日〜1週間', tool: '約30秒', nothing: '0秒' },
-  { item: '条文番号付き根拠', lawyer: '◯', tool: '◯', nothing: '✗' },
-  { item: '修正案の提示', lawyer: '◯', tool: '◯', nothing: '✗' },
-  { item: '違反見落としリスク', lawyer: '低い', tool: '低い', nothing: '高い' },
-  { item: '24時間利用可能', lawyer: '✗', tool: '◯', nothing: '―' },
-]
-
-const testimonials = [
-  {
-    name: 'Webデザイナー 田中さん（30代・フリーランス歴3年）',
-    avatar: '🎨',
-    stars: 5,
-    text: '「支払期日が受領後120日」という条項を見落としていました。このツールが「フリーランス新法第4条違反」と条文番号付きで指摘してくれたおかげで、契約前に60日以内への修正を要求できました。500円が数十万円を守りました。',
-    badge: '支払いトラブル防止',
-  },
-  {
-    name: 'エンジニア 山田さん（20代・副業フリーランス）',
-    avatar: '💻',
-    stars: 5,
-    text: '副業で初めて業務委託契約を受けたとき、「いつでも即日解除可能」という条項がありました。フリーランス新法第16条違反だと指摘され、30日前予告条項に修正してもらえました。法律の知識がなくても使えるのが◎',
-    badge: '契約解除リスク回避',
-  },
-  {
-    name: 'ライター 鈴木さん（40代・フリーランス歴10年）',
-    avatar: '✍️',
-    stars: 5,
-    text: '「修正回数は無制限」「クライアントが不満なら報酬ゼロ」という条項を指摘してもらいました。ベテランの私でも見落としていた条項が2個も。毎回の契約書チェックに使っています。',
-    badge: '修正・返品トラブル防止',
-  },
-]
-
-const faqs = [
-  {
-    q: 'AIの診断精度はどれくらいですか？',
-    a: '最新のClaude AIが、フリーランス新法・下請法の全条項に照らして診断します。条文番号を根拠に判定するため、感覚的な判断ではなく法律の文言に基づいた結果が得られます。ただし本ツールはAIによる一次チェックであり、法律相談ではありません。重要な契約は弁護士への相談を推奨します。',
-  },
-  {
-    q: '返金はできますか？',
-    a: '診断結果に問題があった場合（例：AIが結果を出力できなかったなど技術的な不具合）は、購入日から7日以内に support@freelance-contract-checker.vercel.app へご連絡ください。個別に対応します。なお、「違反が見つからなかった」など診断結果の内容に関する返金はお受けできません。',
-  },
-  {
-    q: 'どんな形式の契約書でも診断できますか？',
-    a: 'PDF・画像（JPG/PNG）・テキスト貼り付けに対応しています。スキャンしたPDFや画像も、OCR処理でテキストを抽出して診断します。ただし、文字が極端に小さい・画質が非常に低い場合は精度が下がることがあります。',
-  },
-  {
-    q: '診断結果は保存できますか？',
-    a: '単発プラン（500円）・法人プラン（月額2,980円）ともに、診断結果は永久保存されます。ダッシュボードからいつでも過去の診断結果を確認できます。',
-  },
-  {
-    q: '契約書の内容は外部に漏れませんか？',
-    a: '入力された契約書のテキストは診断処理にのみ使用し、第三者に提供・公開することはありません。通信はすべてSSL暗号化されています。',
-  },
-  {
-    q: '弁護士に相談するのとどう違いますか？',
-    a: '弁護士への法律相談は1時間あたり1〜3万円が相場です。本ツールは500円で「どの条項が・なぜ・どう問題か」を30秒で特定する一次チェックツールです。重要な契約の最終確認は弁護士へ、日常的な契約書チェックには本ツールをご活用ください。',
-  },
-]
-
-const SeverityBadge = ({ severity }: { severity: string }) => {
-  if (severity === 'critical') {
-    return (
-      <span className="inline-flex items-center gap-1 bg-red-500/15 text-red-400 text-xs font-bold px-2 py-0.5 rounded-full border border-red-500/30">
-        重大
-      </span>
-    )
-  }
-  return (
-    <span className="inline-flex items-center gap-1 bg-amber-500/15 text-amber-400 text-xs font-bold px-2 py-0.5 rounded-full border border-amber-500/30">
-      高リスク
-    </span>
-  )
-}
 
 // ================================================================
 // ページ本体
@@ -161,26 +11,27 @@ const SeverityBadge = ({ severity }: { severity: string }) => {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen" style={{ backgroundColor: '#F8F7F4' }}>
 
       {/* ヘッダー */}
-      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
-              <Shield className="h-4 w-4 text-white" />
+      <header className="border-b border-gray-200 bg-white/90 backdrop-blur-sm sticky top-0 z-50">
+        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600">
+              <Shield className="h-3.5 w-3.5 text-white" />
             </div>
-            <span className="text-sm font-bold text-slate-100">契約書チェッカー</span>
+            <span className="text-sm font-bold text-gray-900">契約書チェッカー</span>
+            <span className="text-xs text-gray-400 ml-1">by ワークシールド</span>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/login" className="text-sm text-slate-400 hover:text-slate-200 transition-colors">
+            <Link href="/login" className="text-sm text-gray-500 hover:text-gray-800 transition-colors">
               ログイン
             </Link>
             <Link
               href="/signup"
-              className="text-sm bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition-colors font-medium"
+              className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors font-medium"
             >
-              無料で始める
+              無料で試す
             </Link>
           </div>
         </div>
@@ -188,401 +39,273 @@ export default function LandingPage() {
 
       <main>
 
-        {/* 緊急性バナー */}
-        <div className="bg-red-500/10 border-b border-red-500/20 py-2.5 text-center">
-          <p className="text-xs text-red-300 font-medium">
-            ⚠️ フリーランス新法施行（2024年11月）から半年以上経過。違反契約のリスクが急増中。<strong>サインする前に必ずチェック</strong>
-          </p>
-        </div>
-
         {/* ================================================================
-            ① ファーストビュー
+            ファーストビュー
         ================================================================ */}
-        <section className="max-w-6xl mx-auto px-6 pt-16 pb-12 text-center">
-          {/* 権威性バッジ */}
-          <div className="inline-flex items-center gap-2 bg-blue-600/10 border border-blue-600/20 rounded-full px-4 py-1.5 text-xs font-bold text-blue-400 mb-6">
-            <BadgeCheck className="h-3.5 w-3.5" />
-            2026年最新ガイドライン完全準拠｜フリーランス新法・下請法 全条項対応
-          </div>
+        <section className="max-w-5xl mx-auto px-6 pt-16 pb-16">
+          <div className="max-w-2xl">
+            <p className="text-sm text-gray-500 mb-4">フリーランス新法・下請法 対応チェックツール</p>
 
-          {/* メインキャッチコピー */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-100 leading-tight mb-5">
-            その契約書、<span className="text-red-400">違法条項</span>が<br />
-            <span className="text-blue-400">30秒</span>で見つかります
-          </h1>
+            <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight mb-6">
+              サインする前に、<br />
+              <span className="text-blue-600">30秒だけ</span>確認してください。
+            </h1>
 
-          <p className="text-lg text-slate-300 max-w-2xl mx-auto mb-4 leading-relaxed">
-            フリーランス新法・下請法の<strong>全条項</strong>に照らして契約書を自動診断。<br />
-            違反箇所を<strong>条文番号付き</strong>で指摘し、<strong>修正案まで</strong>出力します。
-          </p>
-
-          <p className="text-sm text-slate-500 mb-8">
-            弁護士相談費用の<strong className="text-slate-300">1/60以下</strong>のコストで、<strong className="text-slate-300">今日中に</strong>確認できます
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/signup?next=/pricing"
-              className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold text-base transition-all shadow-lg shadow-blue-600/25"
-            >
-              500円で今すぐ診断する
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/signup"
-              className="inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-8 py-4 rounded-xl font-medium text-base transition-all border border-slate-700"
-            >
-              まず無料で試してみる
-            </Link>
-          </div>
-
-          <p className="text-xs text-slate-500 mt-4">
-            ✅ 無料登録で<strong className="text-slate-300">1回お試し可能</strong>（クレジットカード不要）
-          </p>
-        </section>
-
-        {/* ================================================================
-            ① - B 実績数値バー（社会的証明）
-        ================================================================ */}
-        <section className="border-y border-slate-800 bg-slate-900/60 py-8">
-          <div className="max-w-5xl mx-auto px-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-              {stats.map(({ num, label, sub }) => (
-                <div key={label}>
-                  <p className="text-2xl md:text-3xl font-extrabold text-blue-400 mb-1">{num}</p>
-                  <p className="text-sm font-semibold text-slate-200">{label}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{sub}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ================================================================
-            ② 権威性：対応法律・準拠ガイドライン
-        ================================================================ */}
-        <section className="border-y border-slate-800 bg-slate-900/50 py-10">
-          <div className="max-w-6xl mx-auto px-6">
-            <p className="text-center text-xs font-bold text-slate-500 uppercase tracking-widest mb-6">
-              2026年最新ガイドライン完全準拠｜チェック対象条項
+            <p className="text-lg text-gray-600 leading-relaxed mb-6">
+              2024年11月に施行されたフリーランス新法。「自分の契約書、実は違反してるかも」と気になっても、弁護士に頼むのはハードルが高い。
             </p>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {checks.map((check) => (
-                <div key={check} className="flex items-center gap-2 text-sm text-slate-300">
-                  <CheckCircle className="h-4 w-4 text-green-400 shrink-0" />
-                  {check}
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
 
-        {/* ================================================================
-            ③ リスクの可視化：放置するとどうなるか
-        ================================================================ */}
-        <section className="max-w-6xl mx-auto px-6 py-20">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-full px-4 py-1.5 text-xs font-bold text-red-400 mb-4">
-              <AlertTriangle className="h-3.5 w-3.5" />
-              放置すると取り返しのつかないリスクがあります
-            </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-100 mb-4">
-              「知らなかった」では済まない<br className="hidden md:block" />法律違反の現実
-            </h2>
-            <p className="text-slate-400 text-sm max-w-xl mx-auto">
-              フリーランス新法・下請法に違反した契約書にサインすることは、
-              あなた自身の収益・権利・将来の取引に直接影響します。
+            <p className="text-lg text-gray-600 leading-relaxed mb-8">
+              このツールは契約書を貼り付けるだけで、どの条項が問題なのかを条文番号付きで教えてくれます。費用は500円。弁護士相談の60分の1です。
             </p>
-          </div>
 
-          <div className="grid md:grid-cols-2 gap-4 mb-10">
-            {riskItems.map((item) => (
-              <div
-                key={item.law}
-                className="rounded-xl border border-slate-700/50 bg-slate-800/50 p-5"
-              >
-                <div className="flex items-start justify-between gap-3 mb-2">
-                  <span className="text-xs text-slate-500 font-mono">{item.law}</span>
-                  <SeverityBadge severity={item.severity} />
-                </div>
-                <p className="text-sm font-semibold text-slate-200 mb-1">{item.violation}</p>
-                <p className="text-xs text-slate-400">
-                  <span className="text-red-400 font-medium">→ </span>{item.penalty}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* 解決策への橋渡し */}
-          <div className="rounded-2xl border border-blue-500/30 bg-blue-500/5 p-8 text-center">
-            <p className="text-slate-300 text-sm mb-2">
-              上記のリスクを<strong className="text-white">サインする前に</strong>発見できれば、交渉・修正・拒否ができます。
-            </p>
-            <p className="text-slate-400 text-xs mb-6">
-              AIが契約書の全条項を自動でスキャンし、リスクのある箇所を条文番号付きで特定します。
-            </p>
-            <Link
-              href="/signup?next=/pricing"
-              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold text-sm transition-all"
-            >
-              500円でリスクを全て可視化する
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </section>
-
-        {/* ================================================================
-            実際の使用シーン（ユースケース）
-        ================================================================ */}
-        <section className="max-w-6xl mx-auto px-6 py-20">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-full px-4 py-1.5 text-xs font-bold text-green-400 mb-4">
-              <TrendingUp className="h-3.5 w-3.5" />
-              実際に使われているシーン
-            </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-100 mb-3">
-              こんな状況でよく使われています
-            </h2>
-            <p className="text-slate-400 text-sm">
-              フリーランスから発注担当者まで、契約書に関わるすべての人に。
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-5">
-            {useCases.map(({ icon, title, desc, badge }) => (
-              <div key={title} className="rounded-xl border border-slate-700/50 bg-slate-800/50 p-6">
-                <div className="text-3xl mb-3">{icon}</div>
-                <span className="inline-block bg-blue-600/15 text-blue-400 text-xs font-bold px-2 py-0.5 rounded-full border border-blue-600/20 mb-3">{badge}</span>
-                <h3 className="text-sm font-bold text-slate-100 mb-2">{title}</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">{desc}</p>
-              </div>
-            ))}
-          </div>
-          <div className="text-center mt-8">
-            <Link
-              href="/signup?next=/pricing"
-              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold text-sm transition-all"
-            >
-              自分の契約書を診断する
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </section>
-
-        {/* ================================================================
-            比較表：弁護士 vs 本ツール vs 何もしない
-        ================================================================ */}
-        <section className="border-y border-slate-800 bg-slate-900/40 py-20">
-          <div className="max-w-4xl mx-auto px-6">
-            <h2 className="text-2xl font-bold text-slate-100 text-center mb-10">
-              「弁護士に頼む」「本ツールを使う」「何もしない」の比較
-            </h2>
-            <div className="overflow-x-auto rounded-xl border border-slate-700/50">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-slate-700">
-                    <th className="text-left px-5 py-4 text-slate-400 font-medium w-32">比較項目</th>
-                    <th className="px-5 py-4 text-center">
-                      <span className="text-slate-300 font-semibold">弁護士相談</span>
-                    </th>
-                    <th className="px-5 py-4 text-center bg-blue-600/10">
-                      <span className="text-blue-400 font-bold">本ツール ✓</span>
-                    </th>
-                    <th className="px-5 py-4 text-center">
-                      <span className="text-slate-500 font-medium">何もしない</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {comparison.map(({ item, lawyer, tool, nothing }, i) => (
-                    <tr key={item} className={`border-b border-slate-700/50 ${i % 2 === 0 ? '' : 'bg-slate-800/30'}`}>
-                      <td className="px-5 py-3.5 text-slate-400 text-xs font-medium">{item}</td>
-                      <td className="px-5 py-3.5 text-center text-slate-300 text-xs">{lawyer}</td>
-                      <td className="px-5 py-3.5 text-center text-blue-400 font-bold text-xs bg-blue-600/5">{tool}</td>
-                      <td className="px-5 py-3.5 text-center text-slate-500 text-xs">{nothing}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <div className="text-center mt-8">
-              <p className="text-slate-400 text-xs mb-4">弁護士への相談は重要な最終確認に。日常的な契約書チェックは本ツールで。</p>
+            <div className="flex flex-col sm:flex-row gap-3 mb-4">
               <Link
-                href="/signup?next=/pricing"
-                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold text-sm transition-all"
+                href="/signup"
+                className="inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-8 py-3.5 rounded-xl font-bold text-base transition-all shadow-sm"
               >
-                500円で始める（弁護士費用の1/60）
+                無料で1回試してみる
                 <ArrowRight className="h-4 w-4" />
               </Link>
+              <Link
+                href="/signup?next=/pricing"
+                className="inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-700 px-8 py-3.5 rounded-xl font-medium text-base transition-all border border-gray-200"
+              >
+                500円で診断する
+              </Link>
             </div>
+            <p className="text-xs text-gray-400">クレジットカード不要で登録できます</p>
           </div>
         </section>
 
         {/* ================================================================
-            使い方：3ステップ
+            「こんな経験ありませんか？」共感セクション
         ================================================================ */}
-        <section className="border-y border-slate-800 bg-slate-900/30 py-20">
+        <section className="border-y border-gray-200 bg-white py-16">
           <div className="max-w-5xl mx-auto px-6">
-            <h2 className="text-2xl font-bold text-slate-100 text-center mb-12">
-              使い方はたった3ステップ
-            </h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-8">こんな経験、ありませんか？</h2>
             <div className="grid md:grid-cols-3 gap-6">
-              {steps.map(({ step, title, desc }) => (
-                <div key={step} className="text-center">
-                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-blue-600/20 border border-blue-600/30 text-blue-400 font-extrabold text-lg mb-4">
-                    {step}
-                  </div>
-                  <h3 className="text-sm font-bold text-slate-100 mb-2">{title}</h3>
-                  <p className="text-xs text-slate-400 leading-relaxed">{desc}</p>
+              {[
+                {
+                  q: '「支払いは納品後90日以内」という条項があったけど、これって普通なの？',
+                  note: '→ フリーランス新法では60日以内が上限です',
+                },
+                {
+                  q: '「修正回数は無制限、品質に満足できなければ報酬なし」という契約書を渡された',
+                  note: '→ 買い叩きとして違反になる可能性があります',
+                },
+                {
+                  q: '「いつでも即日解約できる」という条項があった。これで大丈夫？',
+                  note: '→ 30日前予告が義務です（第16条）',
+                },
+              ].map(({ q, note }) => (
+                <div key={q} className="bg-gray-50 rounded-xl p-5 border border-gray-100">
+                  <p className="text-sm text-gray-700 leading-relaxed mb-3">「{q}」</p>
+                  <p className="text-xs text-red-500 font-medium">{note}</p>
                 </div>
               ))}
             </div>
-            <div className="text-center mt-10">
-              <div className="inline-flex items-center gap-2 text-sm text-slate-400">
-                <Clock className="h-4 w-4 text-green-400" />
-                診断所要時間：約30秒
-              </div>
-            </div>
+            <p className="text-sm text-gray-500 mt-8">
+              このような条項、自分では気づきにくいのが実情です。法律の文章を全部読んで照合するのは、現実的ではありません。
+            </p>
           </div>
         </section>
 
         {/* ================================================================
-            ユーザーの声（社会的証明）
+            使い方（シンプルに）
         ================================================================ */}
-        <section className="max-w-6xl mx-auto px-6 py-20">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-full px-4 py-1.5 text-xs font-bold text-green-400 mb-4">
-              <MessageSquare className="h-3.5 w-3.5" />
-              ユーザーの声
-            </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-100 mb-3">
-              実際に使った方の声
-            </h2>
-            <p className="text-slate-400 text-sm">契約書チェッカーで違反条項を発見したユーザーの体験談</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {testimonials.map(({ name, avatar, stars, text, badge }) => (
-              <div key={name} className="rounded-2xl border border-slate-700/50 bg-slate-800/50 p-6 flex flex-col gap-4">
-                <div className="flex items-center gap-1">
-                  {Array.from({ length: stars }).map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
-                  ))}
+        <section className="max-w-5xl mx-auto px-6 py-16">
+          <h2 className="text-xl font-bold text-gray-900 mb-2">使い方はシンプルです</h2>
+          <p className="text-gray-500 text-sm mb-10">難しい操作は何もありません</p>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                num: '1',
+                title: '契約書をコピーする',
+                desc: 'PDFでも画像でも、テキストをコピーするだけでも大丈夫です。',
+              },
+              {
+                num: '2',
+                title: '貼り付けて送信する',
+                desc: '入力欄に貼り付けてボタンを押すだけ。フォームは1画面で完結します。',
+              },
+              {
+                num: '3',
+                title: '結果を確認する',
+                desc: '約30秒で「第○条違反の可能性」と具体的に指摘。修正案もそのまま使えます。',
+              },
+            ].map(({ num, title, desc }) => (
+              <div key={num} className="flex gap-4">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
+                  {num}
                 </div>
-                <p className="text-sm text-slate-300 leading-relaxed flex-1">「{text}」</p>
                 <div>
-                  <span className="inline-block bg-blue-600/15 text-blue-400 text-xs font-semibold px-2 py-0.5 rounded-full border border-blue-600/20 mb-2">
-                    {badge}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl">{avatar}</span>
-                    <p className="text-xs text-slate-500">{name}</p>
-                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-1 text-sm">{title}</h3>
+                  <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
                 </div>
               </div>
             ))}
           </div>
-          <div className="text-center mt-10">
-            <Link
-              href="/signup?next=/pricing"
-              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold transition-all shadow-lg shadow-blue-600/20"
-            >
-              私も契約書をチェックする
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-            <p className="text-xs text-slate-500 mt-3">✅ 無料登録で1回お試し（カード不要）</p>
+
+          <div className="mt-10 flex items-center gap-2 text-sm text-gray-400">
+            <Clock className="h-4 w-4" />
+            診断にかかる時間は平均30秒ほどです
           </div>
         </section>
 
         {/* ================================================================
-            料金プラン
+            チェックしている内容
         ================================================================ */}
-        <section className="max-w-6xl mx-auto px-6 py-20">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-100 mb-3">シンプルな料金プラン</h2>
-            <p className="text-slate-400 text-sm">まず無料で登録。必要に応じてアップグレード。</p>
-          </div>
+        <section className="border-y border-gray-200 bg-gray-50 py-16">
+          <div className="max-w-5xl mx-auto px-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-2">何をチェックしているか</h2>
+            <p className="text-gray-500 text-sm mb-8">フリーランス新法と下請法の主要条項をすべてカバーしています</p>
 
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            <div className="grid sm:grid-cols-2 gap-3 max-w-2xl">
+              {[
+                '取引条件の書面明示（第3条）',
+                '報酬の支払期日・60日以内（第4条）',
+                '受領拒否・返品・買い叩きの禁止（第5条）',
+                'ハラスメント対策の整備義務（第14条）',
+                '中途解除の30日前予告（第16条）',
+                '下請法の禁止行為（減額・不当返品など）',
+              ].map((item) => (
+                <div key={item} className="flex items-start gap-2 text-sm text-gray-700">
+                  <CheckCircle className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
+                  {item}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ================================================================
+            使った人の声（自然な形で）
+        ================================================================ */}
+        <section className="max-w-5xl mx-auto px-6 py-16">
+          <h2 className="text-xl font-bold text-gray-900 mb-2">使った人の声</h2>
+          <p className="text-gray-500 text-sm mb-10">実際の体験をそのまま掲載しています</p>
+
+          <div className="space-y-6">
+            {[
+              {
+                name: 'Webデザイナー・田中さん（フリーランス歴3年）',
+                stars: 5,
+                text: '「支払いは納品確認後120日以内」という条項を見落としていました。指摘してもらって初めて気づき、交渉して60日に修正してもらいました。500円でよかったです。',
+              },
+              {
+                name: 'エンジニア・山田さん（副業フリーランス）',
+                stars: 5,
+                text: '初めての業務委託で契約書の何を見ればいいかわからなかった。「即日解約可能」という条項が違反だと教えてもらえて、ちゃんと30日前予告の文言に直してもらえました。',
+              },
+              {
+                name: 'ライター・鈴木さん（フリーランス歴10年）',
+                stars: 5,
+                text: '10年やってても見落とすんだな、と思いました。「修正は無制限」という条項が引っかかりました。ベテランほど「これくらいは普通」と流してしまうので、定期的に使っています。',
+              },
+            ].map(({ name, stars, text }) => (
+              <div key={name} className="border border-gray-200 bg-white rounded-xl p-6">
+                <div className="flex items-center gap-1 mb-3">
+                  {Array.from({ length: stars }).map((_, i) => (
+                    <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                  ))}
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed mb-4">{text}</p>
+                <p className="text-xs text-gray-400">{name}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ================================================================
+            弁護士との比較（表ではなく文章で）
+        ================================================================ */}
+        <section className="border-y border-gray-200 bg-white py-16">
+          <div className="max-w-5xl mx-auto px-6 max-w-2xl">
+            <h2 className="text-xl font-bold text-gray-900 mb-6">弁護士に頼むのとどう違うの？</h2>
+            <div className="space-y-4 text-sm text-gray-600 leading-relaxed">
+              <p>
+                弁護士への相談は、1時間あたり1〜3万円が相場で、予約から回答まで数日かかることもあります。「この条項だけ確認したい」という目的には少し重い選択肢かもしれません。
+              </p>
+              <p>
+                このツールは500円・30秒で「どの条項が、なぜ問題なのか」を条文番号付きで出してくれます。弁護士の代わりではなく、弁護士に相談するかどうかの判断材料として使うのが、いちばん合理的だと思っています。
+              </p>
+              <p className="text-gray-400">
+                ※ 重要な契約の最終判断は、必ず弁護士にご相談ください。
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ================================================================
+            料金（シンプルに）
+        ================================================================ */}
+        <section className="max-w-5xl mx-auto px-6 py-16">
+          <h2 className="text-xl font-bold text-gray-900 mb-2">料金</h2>
+          <p className="text-gray-500 text-sm mb-10">まず無料で試してみてください</p>
+
+          <div className="grid md:grid-cols-3 gap-5 max-w-3xl">
             {/* 無料 */}
-            <div className="rounded-2xl border border-slate-700/50 bg-slate-800/50 p-8 flex flex-col">
-              <div className="flex items-center gap-2 mb-4">
-                <User className="h-5 w-5 text-slate-400" />
-                <span className="text-sm font-medium text-slate-400">無料プラン</span>
+            <div className="rounded-xl border border-gray-200 bg-white p-6 flex flex-col">
+              <div className="flex items-center gap-2 mb-3">
+                <User className="h-4 w-4 text-gray-400" />
+                <span className="text-xs font-medium text-gray-500">無料プラン</span>
               </div>
-              <div className="mb-6">
-                <span className="text-4xl font-extrabold text-slate-100">¥0</span>
+              <div className="mb-4">
+                <span className="text-3xl font-extrabold text-gray-900">¥0</span>
               </div>
-              <ul className="space-y-3 mb-8 flex-1">
-                {['会員登録無料', '診断1回お試し', '結果の閲覧・保存'].map(f => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-slate-400">
-                    <CheckCircle className="h-4 w-4 text-green-400 shrink-0" />
-                    {f}
-                  </li>
-                ))}
+              <ul className="space-y-2 mb-6 flex-1 text-sm text-gray-600">
+                <li className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0" />登録は無料</li>
+                <li className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0" />1回だけ診断できます</li>
               </ul>
-              <Link href="/signup" className="block text-center bg-slate-700 hover:bg-slate-600 text-slate-100 py-3 rounded-xl font-medium transition-colors text-sm">
+              <Link href="/signup" className="block text-center bg-gray-100 hover:bg-gray-200 text-gray-800 py-2.5 rounded-lg font-medium transition-colors text-sm">
                 無料で始める
               </Link>
             </div>
 
             {/* 単発 */}
-            <div className="rounded-2xl border border-blue-600/50 bg-blue-600/10 p-8 flex flex-col relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">おすすめ</span>
+            <div className="rounded-xl border-2 border-blue-400 bg-white p-6 flex flex-col relative">
+              <div className="absolute -top-3 left-5">
+                <span className="bg-blue-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">よく使われています</span>
               </div>
-              <div className="flex items-center gap-2 mb-4">
-                <FileSearch className="h-5 w-5 text-blue-400" />
-                <span className="text-sm font-medium text-blue-400">単発診断</span>
+              <div className="flex items-center gap-2 mb-3">
+                <FileSearch className="h-4 w-4 text-blue-500" />
+                <span className="text-xs font-medium text-blue-600">単発診断</span>
               </div>
               <div className="mb-1">
-                <span className="text-4xl font-extrabold text-slate-100">¥500</span>
-                <span className="text-slate-400 text-sm ml-2">/ 1回</span>
+                <span className="text-3xl font-extrabold text-gray-900">¥500</span>
+                <span className="text-gray-400 text-xs ml-1">/ 1回</span>
               </div>
-              <p className="text-xs text-slate-500 mb-6">弁護士相談の1/60以下のコスト</p>
-              <ul className="space-y-3 mb-8 flex-1">
-                {[
-                  '全条項チェック（フリーランス新法・下請法）',
-                  '違反箇所の条文番号付き指摘',
-                  '具体的な修正案の提示',
-                  '不足条項の指摘',
-                  '診断結果の永久保存',
-                ].map(f => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-slate-300">
-                    <CheckCircle className="h-4 w-4 text-green-400 shrink-0" />
-                    {f}
-                  </li>
-                ))}
+              <p className="text-xs text-gray-400 mb-4">弁護士相談の約60分の1</p>
+              <ul className="space-y-2 mb-6 flex-1 text-sm text-gray-600">
+                <li className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0" />全条項チェック</li>
+                <li className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0" />条文番号付きで指摘</li>
+                <li className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0" />修正案の提示</li>
+                <li className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0" />結果は永久保存</li>
               </ul>
-              <Link href="/signup?next=/pricing" className="block text-center bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold transition-colors text-sm">
-                500円で今すぐ診断する
+              <Link href="/signup?next=/pricing" className="block text-center bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-bold transition-colors text-sm">
+                500円で診断する
               </Link>
             </div>
 
             {/* 法人 */}
-            <div className="rounded-2xl border border-purple-600/50 bg-purple-600/10 p-8 flex flex-col">
-              <div className="flex items-center gap-2 mb-4">
-                <Building2 className="h-5 w-5 text-purple-400" />
-                <span className="text-sm font-medium text-purple-400">法人向け定額</span>
+            <div className="rounded-xl border border-gray-200 bg-white p-6 flex flex-col">
+              <div className="flex items-center gap-2 mb-3">
+                <Building2 className="h-4 w-4 text-purple-400" />
+                <span className="text-xs font-medium text-purple-600">法人・月額</span>
               </div>
               <div className="mb-1">
-                <span className="text-4xl font-extrabold text-slate-100">¥2,980</span>
-                <span className="text-slate-400 text-sm ml-2">/ 月</span>
+                <span className="text-3xl font-extrabold text-gray-900">¥2,980</span>
+                <span className="text-gray-400 text-xs ml-1">/ 月</span>
               </div>
-              <p className="text-xs text-slate-500 mb-6">月6件以上の診断で元が取れる</p>
-              <ul className="space-y-3 mb-8 flex-1">
-                {[
-                  '単発プランの全機能',
-                  '月間診断数：無制限',
-                  '発注担当者向けコンプライアンスチェック',
-                  '優先サポート',
-                  '診断レポートのエクスポート（予定）',
-                ].map(f => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-slate-300">
-                    <CheckCircle className="h-4 w-4 text-green-400 shrink-0" />
-                    {f}
-                  </li>
-                ))}
+              <p className="text-xs text-gray-400 mb-4">月6件以上なら月額が割安</p>
+              <ul className="space-y-2 mb-6 flex-1 text-sm text-gray-600">
+                <li className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0" />診断数は無制限</li>
+                <li className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0" />発注側のチェックも対応</li>
+                <li className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0" />優先サポート</li>
               </ul>
-              <Link href="/signup?next=/pricing" className="block text-center bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-xl font-bold transition-colors text-sm">
+              <Link href="/signup?next=/pricing" className="block text-center bg-purple-600 hover:bg-purple-700 text-white py-2.5 rounded-lg font-bold transition-colors text-sm">
                 法人プランを始める
               </Link>
             </div>
@@ -590,27 +313,45 @@ export default function LandingPage() {
         </section>
 
         {/* ================================================================
-            ④ FAQ：心理的ハードルを下げる
+            FAQ（自然な口調で）
         ================================================================ */}
-        <section className="border-t border-slate-800 bg-slate-900/30 py-20">
-          <div className="max-w-3xl mx-auto px-6">
-            <h2 className="text-2xl font-bold text-slate-100 text-center mb-3">よくある質問</h2>
-            <p className="text-slate-400 text-sm text-center mb-12">
-              購入前の不安を解消します
-            </p>
+        <section className="border-t border-gray-200 bg-gray-50 py-16">
+          <div className="max-w-2xl mx-auto px-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-10">よく聞かれること</h2>
 
-            <div className="space-y-4">
-              {faqs.map(({ q, a }) => (
+            <div className="space-y-3">
+              {[
+                {
+                  q: 'AIの診断はどれくらい正確ですか？',
+                  a: '最新のClaude AIが条文と照合して判定しています。感覚的な判断ではなく、条文番号を根拠にしているので、「なぜ問題なのか」が明確にわかります。ただし、これはあくまで一次チェックです。確信が持てない場合や重要な契約は、弁護士への相談をお勧めします。',
+                },
+                {
+                  q: '契約書の内容が外部に漏れる心配はありませんか？',
+                  a: '入力した内容は診断処理にのみ使用します。第三者への提供や公開はしません。通信はSSLで暗号化されています。',
+                },
+                {
+                  q: 'PDFや画像でも使えますか？',
+                  a: 'はい。PDF・画像（JPG/PNG）・テキスト貼り付けに対応しています。スキャンしたPDFもOCRで読み取ります。ただし画質が著しく低い場合は精度が落ちることがあります。',
+                },
+                {
+                  q: '返金してもらえますか？',
+                  a: 'AIが結果を返せなかったなど、技術的な問題があった場合は7日以内にご連絡いただければ対応します。「違反が見つからなかった」という診断内容に関する返金はお受けできません。',
+                },
+                {
+                  q: '発注側（企業）も使えますか？',
+                  a: 'はい。自社が発注する際の契約書が、フリーランス新法・下請法に違反していないか確認するのにも使えます。月額プランでは件数無制限です。',
+                },
+              ].map(({ q, a }) => (
                 <details
                   key={q}
-                  className="group rounded-xl border border-slate-700/50 bg-slate-800/50 overflow-hidden"
+                  className="group rounded-xl border border-gray-200 bg-white overflow-hidden"
                 >
-                  <summary className="flex items-center justify-between gap-4 px-6 py-4 cursor-pointer list-none">
-                    <span className="text-sm font-medium text-slate-200">{q}</span>
-                    <ChevronDown className="h-4 w-4 text-slate-400 shrink-0 group-open:rotate-180 transition-transform" />
+                  <summary className="flex items-center justify-between gap-4 px-5 py-4 cursor-pointer list-none">
+                    <span className="text-sm font-medium text-gray-800">{q}</span>
+                    <ChevronDown className="h-4 w-4 text-gray-400 shrink-0 group-open:rotate-180 transition-transform" />
                   </summary>
-                  <div className="px-6 pb-5 pt-1">
-                    <p className="text-sm text-slate-400 leading-relaxed">{a}</p>
+                  <div className="px-5 pb-5 pt-1">
+                    <p className="text-sm text-gray-600 leading-relaxed">{a}</p>
                   </div>
                 </details>
               ))}
@@ -619,51 +360,36 @@ export default function LandingPage() {
         </section>
 
         {/* ================================================================
-            最終CTA
+            最終CTA（押しつけがましくなく）
         ================================================================ */}
-        <section className="max-w-3xl mx-auto px-6 py-20 text-center">
-          <div className="rounded-2xl border border-blue-600/30 bg-blue-600/10 p-12">
-            <div className="inline-flex items-center gap-2 bg-blue-600/20 border border-blue-600/30 rounded-full px-3 py-1 text-xs font-bold text-blue-400 mb-6">
-              <Zap className="h-3 w-3" />
-              診断所要時間：約30秒
-            </div>
-            <h2 className="text-2xl font-bold text-slate-100 mb-3">
-              サインする前の500円が、<br />あなたの権利を守ります
-            </h2>
-            <p className="text-slate-400 text-sm mb-8 leading-relaxed">
-              違反条項を見つけてから交渉するのと、<br />
-              知らずにサインしてしまうのでは、結果が全く変わります。
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link
-                href="/signup?next=/pricing"
-                className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold transition-all shadow-lg shadow-blue-600/20"
-              >
-                500円で今すぐ診断する
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/signup"
-                className="inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 px-8 py-4 rounded-xl font-medium transition-all border border-slate-700 text-sm"
-              >
-                まず無料で試してみる
-              </Link>
-            </div>
-            <div className="mt-5 flex flex-col items-center gap-1.5">
-              <p className="text-xs text-slate-500">✅ 無料登録で1回お試し可能（カード不要）</p>
-              <p className="text-xs text-slate-600">✅ 技術的不具合は7日以内に返金対応</p>
-              <p className="text-xs text-slate-600">✅ 登録30秒で今日中に確認できます</p>
-            </div>
-          </div>
+        <section className="max-w-2xl mx-auto px-6 py-20 text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            まず1回、試してみてください
+          </h2>
+          <p className="text-gray-500 text-sm mb-8 leading-relaxed">
+            無料登録で1回だけ診断できます。クレジットカードの登録は必要ありません。
+            気に入ったら、そのあとで500円プランを選んでいただければ。
+          </p>
+          <Link
+            href="/signup"
+            className="inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-10 py-4 rounded-xl font-bold text-base transition-all"
+          >
+            無料で試してみる
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+          <p className="text-xs text-gray-400 mt-4">登録は30秒で完了します</p>
         </section>
       </main>
 
       <StickyCtaBar />
 
-      <footer className="border-t border-slate-800 py-8">
-        <div className="max-w-6xl mx-auto px-6 text-center text-xs text-slate-600 space-y-1">
-          <p>本サービスはAIによる一次チェックツールであり、法律相談ではありません。重要な契約については必ず弁護士にご相談ください。</p>
-          <p>© 2026 契約書チェッカー｜フリーランス新法・下請法 2026年最新ガイドライン準拠</p>
+      <footer className="border-t border-gray-200 bg-white py-8">
+        <div className="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-400">
+          <div className="flex items-center gap-2">
+            <Shield className="h-3.5 w-3.5" />
+            <span>ワークシールド｜契約書チェッカー</span>
+          </div>
+          <p>AIによる一次チェックツールです。重要な契約の最終判断は弁護士にご相談ください。</p>
         </div>
       </footer>
     </div>

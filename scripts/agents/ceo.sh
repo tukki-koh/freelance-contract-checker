@@ -1,6 +1,6 @@
 #!/bin/bash
-# マーケティング担当エージェント
-# 毎朝の施策チェック & SEOコンテンツ提案
+# ワークシールドCEOエージェント
+# KPI確認・意思決定・週次戦略レビュー
 
 TODAY=$(date '+%Y-%m-%d')
 
@@ -10,11 +10,11 @@ RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
   -H "content-type: application/json" \
   -d "{
     \"model\": \"claude-haiku-4-5-20251001\",
-    \"max_tokens\": 1024,
-    \"system\": \"あなたはfreelance-contract-checkerのマーケティング担当です。フリーランサー向け契約書チェックサービスのCVR向上と集客を担当します。今日実行すべき最重要施策を1つだけ、50文字以内で提案してください。\",
+    \"max_tokens\": 512,
+    \"system\": \"あなたはfreelance-contract-checkerのCEOです。毎週月曜に今週の最重要経営判断を1つ、50文字以内で指示してください。収益・成長・リスク管理の観点から最も優先度が高いものを選んでください。\",
     \"messages\": [{
       \"role\": \"user\",
-      \"content\": \"今日（$TODAY）のマーケティング施策を提案してください。\"
+      \"content\": \"今週（$TODAY）の最重要経営指示を出してください。\"
     }]
   }")
 
@@ -27,5 +27,5 @@ echo "report=${SUMMARY}" >> "$GITHUB_OUTPUT"
 if [ -n "$SLACK_WEBHOOK" ]; then
   curl -s -X POST "$SLACK_WEBHOOK" \
     -H "content-type: application/json" \
-    -d "{\"text\": \"📣 【マーケティングエージェント】$TODAY\n$CONTENT\"}"
+    -d "{\"text\": \"👔 【CEOエージェント】$TODAY\n$CONTENT\"}"
 fi

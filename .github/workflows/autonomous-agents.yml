@@ -2,14 +2,13 @@ name: Autonomous Agents (24/7)
 
 on:
   schedule:
-    # エンジニア監視: 毎時00分（JST 9時〜24時 = UTC 0時〜15時）
-    - cron: '0 0-15 * * *'
-    # 朝のマーケ＆秘書サマリー: 毎朝8時JST (UTC 23時 = 前日)
-    - cron: '0 23 * * *'
+    - cron: '0 0-15 * * *'      # エンジニア監視: JST 9〜24時 毎時
+    - cron: '0 23 * * *'        # 朝サマリー: JST 毎朝8時
+    - cron: '0 23 * * 0'        # CEO・法務: JST 日曜夜 = 月曜朝
   workflow_dispatch:
     inputs:
       agent:
-        description: '実行するエージェント (engineer/marketing/secretary/all)'
+        description: 'engineer / marketing / ceo / legal / ux / secretary / all'
         required: false
         default: 'all'
 
@@ -19,9 +18,7 @@ env:
   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
 jobs:
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  # エンジニアエージェント（毎時）
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # 1. シニアWebエンジニア（毎時）
   engineer-agent:
     name: シニアWebエンジニア
     runs-on: ubuntu-latest
@@ -29,33 +26,33 @@ jobs:
       report: ${{ steps.run.outputs.report }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Vercelデプロイ状況を取得
+      - name: Vercelステータス取得
         id: vercel
         run: |
-          STATUS=$(curl -s "https://api.vercel.com/v6/deployments?projectId=prj_q7MuyvOd5gJd20ymxmM6tLHhvi8r&limit=1" \
-            -H "Authorization: Bearer $VERCEL_TOKEN" | \
-            python3 -c "import sys,json; d=json.load(sys.stdin)['deployments'][0]; print(f\"{d['state']} - {d['meta'].get('gitCommitMessage','')[:50]}\")" 2>/dev/null || echo "取得失敗")
+          if [ -n "$VERCEL_TOKEN" ]; then
+            STATUS=$(curl -s "https://api.vercel.com/v6/deployments?projectId=prj_q7MuyvOd5gJd20ymxmM6tLHhvi8r&limit=1" \
+              -H "Authorization: Bearer $VERCEL_TOKEN" | \
+              python3 -c "import sys,json; d=json.load(sys.stdin)['deployments'][0]; print(d['state'])" 2>/dev/null || echo "取得失敗")
+          else
+            STATUS="VERCEL_TOKEN未設定"
+          fi
           echo "status=$STATUS" >> $GITHUB_OUTPUT
-
       - name: エンジニアエージェント実行
         id: run
         env:
           DEPLOY_STATUS: ${{ steps.vercel.outputs.status }}
-          ERROR_LOGS: "直近ログなし（要Sentryまたはログドレイン設定）"
+          ERROR_LOGS: "Sentry未設定"
         run: |
           chmod +x scripts/agents/engineer.sh
-          REPORT=$(bash scripts/agents/engineer.sh)
-          echo "report=$REPORT" >> $GITHUB_OUTPUT
-          echo "$REPORT"
+          bash scripts/agents/engineer.sh
 
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  # マーケティングエージェント（毎朝）
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # 2. マーケティング担当（毎朝）
   marketing-agent:
     name: マーケティング担当
     runs-on: ubuntu-latest
-    if: github.event.schedule == '0 23 * * *' || github.event_name == 'workflow_dispatch'
+    if: >
+      github.event.schedule == '0 23 * * *' ||
+      github.event_name == 'workflow_dispatch'
     outputs:
       report: ${{ steps.run.outputs.report }}
     steps:
@@ -64,24 +61,74 @@ jobs:
         id: run
         run: |
           chmod +x scripts/agents/marketing.sh
-          REPORT=$(bash scripts/agents/marketing.sh)
-          echo "report=$REPORT" >> $GITHUB_OUTPUT
-          echo "$REPORT"
+          bash scripts/agents/marketing.sh
 
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  # 秘書エージェント（朝のサマリー）
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # 3. CEO（週1回・月曜朝）
+  ceo-agent:
+    name: ワークシールドCEO
+    runs-on: ubuntu-latest
+    if: >
+      github.event.schedule == '0 23 * * 0' ||
+      github.event_name == 'workflow_dispatch'
+    outputs:
+      report: ${{ steps.run.outputs.report }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: CEOエージェント実行
+        id: run
+        run: |
+          chmod +x scripts/agents/ceo.sh
+          bash scripts/agents/ceo.sh
+
+  # 4. 法務アドバイザー（週1回・月曜朝）
+  legal-agent:
+    name: 法務アドバイザー
+    runs-on: ubuntu-latest
+    if: >
+      github.event.schedule == '0 23 * * 0' ||
+      github.event_name == 'workflow_dispatch'
+    outputs:
+      report: ${{ steps.run.outputs.report }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: 法務エージェント実行
+        id: run
+        run: |
+          chmod +x scripts/agents/legal.sh
+          bash scripts/agents/legal.sh
+
+  # 5. UXライター（週2回・火・金）
+  ux-agent:
+    name: UXライター兼コンテンツエディター
+    runs-on: ubuntu-latest
+    if: >
+      github.event.schedule == '0 23 * * 0' ||
+      github.event_name == 'workflow_dispatch'
+    outputs:
+      report: ${{ steps.run.outputs.report }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: UXライターエージェント実行
+        id: run
+        run: |
+          chmod +x scripts/agents/ux-writer.sh
+          bash scripts/agents/ux-writer.sh
+
+  # 6. 専属秘書・進行管理（全エージェント結果を集約）
   secretary-agent:
     name: 専属秘書・進行管理
     runs-on: ubuntu-latest
-    needs: [engineer-agent, marketing-agent]
-    if: always() && (github.event.schedule == '0 23 * * *' || github.event_name == 'workflow_dispatch')
+    needs: [engineer-agent, marketing-agent, ceo-agent, legal-agent, ux-agent]
+    if: always() && github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
       - name: 秘書エージェント実行（デイリーサマリー）
         env:
           ENGINEER_REPORT: ${{ needs.engineer-agent.outputs.report }}
           MARKETING_REPORT: ${{ needs.marketing-agent.outputs.report }}
+          CEO_REPORT: ${{ needs.ceo-agent.outputs.report }}
+          LEGAL_REPORT: ${{ needs.legal-agent.outputs.report }}
+          UX_REPORT: ${{ needs.ux-agent.outputs.report }}
         run: |
           chmod +x scripts/agents/secretary.sh
           bash scripts/agents/secretary.sh
