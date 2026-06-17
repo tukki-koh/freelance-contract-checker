@@ -19,9 +19,17 @@ RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
 CONTENT=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin)['content'][0]['text'])" 2>/dev/null)
 echo "$CONTENT"
 
+# GitHub Actionsのmultiline output対応
+{
+  echo "report<<EOF_REPORT"
+  echo "$CONTENT"
+  echo "EOF_REPORT"
+} >> "$GITHUB_OUTPUT"
+
 # 異常があればSlack通知
 if [ "$CONTENT" != "異常なし" ] && [ -n "$SLACK_WEBHOOK" ]; then
+  SLACK_TEXT=$(echo "$CONTENT" | head -5)
   curl -s -X POST "$SLACK_WEBHOOK" \
     -H "content-type: application/json" \
-    -d "{\"text\": \"🔴 【エンジニアエージェント】\n$CONTENT\"}"
+    -d "{\"text\": \"🔴 【エンジニアエージェント】\n$SLACK_TEXT\"}"
 fi
