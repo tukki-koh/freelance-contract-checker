@@ -1,31 +1,26 @@
 #!/bin/bash
-# マーケティング担当エージェント
-# 毎朝の施策チェック & SEOコンテンツ提案
+set -e
 
 TODAY=$(date '+%Y-%m-%d')
+
+PROMPT="あなたはfreelance-contract-checkerのマーケティング担当です。
+今日: $TODAY
+サービス: フリーランスの契約書リスク診断ツール
+
+以下を実行せよ：
+1. 今日投稿するXの投稿文3本（各140字以内、ハッシュタグ付き）
+2. ターゲット: フリーランサー・副業ワーカー
+3. 各投稿末尾に診断ツールへの誘導を含める
+フォーマット: [投稿1]〜[投稿3]で出力"
 
 RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
   -H "x-api-key: $ANTHROPIC_API_KEY" \
   -H "anthropic-version: 2023-06-01" \
   -H "content-type: application/json" \
-  -d "{
-    \"model\": \"claude-haiku-4-5-20251001\",
-    \"max_tokens\": 1024,
-    \"system\": \"あなたはfreelance-contract-checkerのマーケティング担当です。フリーランサー向け契約書チェックサービスのCVR向上と集客を担当します。今日実行すべき最重要施策を1つだけ、50文字以内で提案してください。\",
-    \"messages\": [{
-      \"role\": \"user\",
-      \"content\": \"今日（$TODAY）のマーケティング施策を提案してください。\"
-    }]
-  }")
+  -d "{\"model\":\"claude-opus-4-8\",\"max_tokens\":1000,\"messages\":[{\"role\":\"user\",\"content\":\"$PROMPT\"}]}" \
+  | python3 -c "import sys,json; print(json.load(sys.stdin)['content'][0]['text'])")
 
-CONTENT=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin)['content'][0]['text'])" 2>/dev/null)
-echo "$CONTENT"
-
-SUMMARY=$(echo "$CONTENT" | grep -m1 "." | cut -c1-200 | tr -d '\r\n"')
-echo "report=${SUMMARY}" >> "$GITHUB_OUTPUT"
-
-if [ -n "$SLACK_WEBHOOK" ]; then
-  curl -s -X POST "$SLACK_WEBHOOK" \
-    -H "content-type: application/json" \
-    -d "{\"text\": \"📣 【マーケティングエージェント】$TODAY\n$CONTENT\"}"
-fi
+echo "report<<EOF" >> $GITHUB_OUTPUT
+echo "$RESPONSE" >> $GITHUB_OUTPUT
+echo "EOF" >> $GITHUB_OUTPUT
+echo "$RESPONSE"

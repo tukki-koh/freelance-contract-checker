@@ -1,27 +1,39 @@
 #!/bin/bash
-# 専属秘書 兼 進行管理エージェント
-# 各エージェントの結果を集約してデイリーサマリーを作成
+set -e
 
-TODAY=$(date '+%Y-%m-%d')
+DATE=$(date '+%Y/%m/%d %H:%M JST')
 
-RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
+SUMMARY_PROMPT="あなたは専属秘書です。以下の各部門報告をまとめてください。
+
+【エンジニア】${ENGINEER_REPORT:-報告なし}
+【マーケティング】${MARKETING_REPORT:-報告なし}
+【CEO】${CEO_REPORT:-報告なし}
+【法務】${LEGAL_REPORT:-報告なし}
+【UX】${UX_REPORT:-報告なし}
+
+Slack用デイリーサマリーを以下形式で作成：
+- 今日の最重要アクション3件
+- 各部門ステータス（1行ずつ）
+- オーナーへの確認事項（あれば）"
+
+SUMMARY=$(curl -s https://api.anthropic.com/v1/messages \
   -H "x-api-key: $ANTHROPIC_API_KEY" \
   -H "anthropic-version: 2023-06-01" \
   -H "content-type: application/json" \
-  -d "{
-    \"model\": \"claude-haiku-4-5-20251001\",
-    \"max_tokens\": 1024,
-    \"system\": \"あなたはfreelance-contract-checkerの専属秘書です。各エージェントの報告を受け取り、CEOが朝一番に読むべき優先事項を3点以内にまとめてください。箇条書きで簡潔に。\",
-    \"messages\": [{
-      \"role\": \"user\",
-      \"content\": \"デイリーサマリー作成。日付: $TODAY。エンジニア: $ENGINEER_REPORT。マーケ: $MARKETING_REPORT。CEO: $CEO_REPORT。法務: $LEGAL_REPORT。UX: $UX_REPORT\"
-    }]
-  }")
+  -d "{\"model\":\"claude-opus-4-8\",\"max_tokens\":800,\"messages\":[{\"role\":\"user\",\"content\":\"$SUMMARY_PROMPT\"}]}" \
+  | python3 -c "import sys,json; print(json.load(sys.stdin)['content'][0]['text'])")
 
-CONTENT=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin)['content'][0]['text'])" 2>/dev/null)
+PAYLOAD=$(python3 -c "
+import json
+text = '''*📊 freelance-contract-checker デイリーレポート*
+$DATE
 
-if [ -n "$SLACK_WEBHOOK" ]; then
-  curl -s -X POST "$SLACK_WEBHOOK" \
-    -H "content-type: application/json" \
-    -d "{\"text\": \"📋 【秘書エージェント・デイリーサマリー】$TODAY\n$CONTENT\"}"
-fi
+$SUMMARY'''
+print(json.dumps({'text': text}))
+")
+
+curl -s -X POST "$SLACK_WEBHOOK" \
+  -H "Content-Type: application/json" \
+  -d "$PAYLOAD"
+
+echo "$SUMMARY"
