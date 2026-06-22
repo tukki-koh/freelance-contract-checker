@@ -12,6 +12,8 @@ ceo = os.environ.get('CEO_REPORT', '報告なし')
 legal = os.environ.get('LEGAL_REPORT', '報告なし')
 ux = os.environ.get('UX_REPORT', '報告なし')
 seo = os.environ.get('SEO_REPORT', '報告なし')
+cs = os.environ.get('CS_REPORT', '報告なし')
+analyst = os.environ.get('ANALYST_REPORT', '報告なし')
 
 prompt = f'''あなたは専属秘書です。以下の各部門報告をまとめてください。
 
@@ -22,6 +24,8 @@ prompt = f'''あなたは専属秘書です。以下の各部門報告をまと�
 【法務】{legal}
 【UX】{ux}
 【SEO・GEO】{seo}
+【カスタマーサクセス】{cs}
+【データアナリスト】{analyst}
 
 Slack用デイリーサマリーを以下形式で作成：
 - 今日の最重要アクション3件

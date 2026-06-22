@@ -2,15 +2,11 @@ name: Autonomous Agents (24/7)
 
 on:
   schedule:
-    - cron: '0 0-15 * * *'      # エンジニア監視: JST 9〜24時 毎時
-    - cron: '0 23 * * *'        # 朝サマリー: JST 毎朝8時
-    - cron: '0 23 * * 0'        # CEO・法務: JST 日曜夜 = 月曜朝
-    - cron: '0 23 * * 1'        # UXライター: JST 火曜朝
-    - cron: '0 23 * * 4'        # UXライター: JST 金曜朝
+    - cron: '0 * * * *'    # 全エージェント: 毎時実行（24時間365日）
   workflow_dispatch:
     inputs:
       agent:
-        description: 'engineer / marketing / ceo / legal / ux / sales / seo / secretary / all'
+        description: 'engineer / marketing / ceo / legal / ux / sales / seo / cs / analyst / secretary / all'
         required: false
         default: 'all'
 
@@ -50,9 +46,6 @@ jobs:
   marketing-agent:
     name: マーケティング担当
     runs-on: ubuntu-latest
-    if: >
-      github.event.schedule == '0 23 * * *' ||
-      github.event_name == 'workflow_dispatch'
     outputs:
       report: ${{ steps.run.outputs.report }}
     steps:
@@ -66,9 +59,6 @@ jobs:
   sales-agent:
     name: 営業担当
     runs-on: ubuntu-latest
-    if: >
-      github.event.schedule == '0 23 * * *' ||
-      github.event_name == 'workflow_dispatch'
     outputs:
       report: ${{ steps.run.outputs.report }}
     steps:
@@ -82,9 +72,6 @@ jobs:
   ceo-agent:
     name: ワークシールドCEO
     runs-on: ubuntu-latest
-    if: >
-      github.event.schedule == '0 23 * * 0' ||
-      github.event_name == 'workflow_dispatch'
     outputs:
       report: ${{ steps.run.outputs.report }}
     steps:
@@ -98,9 +85,6 @@ jobs:
   legal-agent:
     name: 法務アドバイザー
     runs-on: ubuntu-latest
-    if: >
-      github.event.schedule == '0 23 * * 0' ||
-      github.event_name == 'workflow_dispatch'
     outputs:
       report: ${{ steps.run.outputs.report }}
     steps:
@@ -114,10 +98,6 @@ jobs:
   ux-agent:
     name: UXライター兼コンテンツエディター
     runs-on: ubuntu-latest
-    if: >
-      github.event.schedule == '0 23 * * 1' ||
-      github.event.schedule == '0 23 * * 4' ||
-      github.event_name == 'workflow_dispatch'
     outputs:
       report: ${{ steps.run.outputs.report }}
     steps:
@@ -141,11 +121,37 @@ jobs:
           chmod +x scripts/agents/seo.sh
           bash scripts/agents/seo.sh
 
+  cs-agent:
+    name: カスタマーサクセス担当
+    runs-on: ubuntu-latest
+    outputs:
+      report: ${{ steps.run.outputs.report }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: カスタマーサクセスエージェント実行
+        id: run
+        run: |
+          chmod +x scripts/agents/cs.sh
+          bash scripts/agents/cs.sh
+
+  analyst-agent:
+    name: データアナリスト
+    runs-on: ubuntu-latest
+    outputs:
+      report: ${{ steps.run.outputs.report }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: データアナリストエージェント実行
+        id: run
+        run: |
+          chmod +x scripts/agents/analyst.sh
+          bash scripts/agents/analyst.sh
+
   secretary-agent:
     name: 専属秘書・進行管理
     runs-on: ubuntu-latest
-    needs: [engineer-agent, marketing-agent, sales-agent, ceo-agent, legal-agent, ux-agent, seo-agent]
-    if: always() && github.event_name == 'workflow_dispatch'
+    needs: [engineer-agent, marketing-agent, sales-agent, ceo-agent, legal-agent, ux-agent, seo-agent, cs-agent, analyst-agent]
+    if: always()
     steps:
       - uses: actions/checkout@v4
       - name: 秘書エージェント実行（デイリーサマリー）
@@ -157,6 +163,8 @@ jobs:
           LEGAL_REPORT: ${{ needs.legal-agent.outputs.report }}
           UX_REPORT: ${{ needs.ux-agent.outputs.report }}
           SEO_REPORT: ${{ needs.seo-agent.outputs.report }}
+          CS_REPORT: ${{ needs.cs-agent.outputs.report }}
+          ANALYST_REPORT: ${{ needs.analyst-agent.outputs.report }}
         run: |
           chmod +x scripts/agents/secretary.sh
           bash scripts/agents/secretary.sh
