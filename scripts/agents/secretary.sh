@@ -1,9 +1,16 @@
 #!/bin/bash
 set -e
 
+# JST時間確認（UTC+9）、5時以外はSlack送信スキップ
+JST_HOUR=$(TZ=Asia/Tokyo date '+%H')
+if [ "$JST_HOUR" != "05" ] && [ "${FORCE_REPORT:-}" != "true" ]; then
+  echo "Slack report skipped (JST $JST_HOUR:00, runs only at 05:00)"
+  echo "report=skipped" >> $GITHUB_OUTPUT
+  exit 0
+fi
+
 SUMMARY=$(python3 -c "
 import json, urllib.request, os
-from datetime import datetime
 
 engineer = os.environ.get('ENGINEER_REPORT', '報告なし')
 marketing = os.environ.get('MARKETING_REPORT', '報告なし')
@@ -15,26 +22,29 @@ seo = os.environ.get('SEO_REPORT', '報告なし')
 cs = os.environ.get('CS_REPORT', '報告なし')
 analyst = os.environ.get('ANALYST_REPORT', '報告なし')
 
-prompt = f'''あなたは専属秘書です。以下の各部門報告をまとめてください。
+prompt = f'''あなたは専属秘書です。以下の各部門の昨日の活動を朝5時の日次報告としてまとめてください。
 
-【エンジニア】{engineer}
-【マーケティング】{marketing}
-【営業】{sales}
-【CEO】{ceo}
-【法務】{legal}
-【UX】{ux}
-【SEO・GEO】{seo}
-【カスタマーサクセス】{cs}
-【データアナリスト】{analyst}
+エンジニア: {engineer}
+マーケティング: {marketing}
+営業: {sales}
+CEO: {ceo}
+法務: {legal}
+UX: {ux}
+SEO・GEO: {seo}
+カスタマーサクセス: {cs}
+データアナリスト: {analyst}
 
-Slack用デイリーサマリーを以下形式で作成：
-- 今日の最重要アクション3件
-- 各部門ステータス（1行ずつ）
-- オーナーへの確認事項（あれば）'''
+以下のルールで出力せよ：
+- 記号（*、#、【】、---等）は一切使わない
+- 箇条書きは「・」のみ使用
+- 各部門は1行以内
+- 最後に「オーナーへ」として今日中にやるべきことを3件以内で端的に記載
+- 全体200字以内に収める
+- 余計な挨拶・前置き・締めの言葉は不要'''
 
 payload = json.dumps({
   'model': 'claude-opus-4-8',
-  'max_tokens': 800,
+  'max_tokens': 400,
   'messages': [{'role': 'user', 'content': prompt}]
 }).encode()
 
@@ -51,12 +61,12 @@ res = json.loads(urllib.request.urlopen(req).read())
 print(res['content'][0]['text'])
 ")
 
-DATE=$(date '+%Y/%m/%d %H:%M JST')
+DATE=$(TZ=Asia/Tokyo date '+%Y/%m/%d 朝5時レポート')
 python3 -c "
 import json, urllib.request, os, sys
 
 summary = sys.stdin.read()
-text = f'*📊 freelance-contract-checker デイリーレポート*\n$DATE\n\n{summary}'
+text = f'$DATE\n\n{summary}'
 payload = json.dumps({'text': text}).encode()
 
 req = urllib.request.Request(
