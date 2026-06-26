@@ -141,8 +141,15 @@ jobs:
       report: ${{ steps.run.outputs.report }}
     steps:
       - uses: actions/checkout@v4
+      - name: 依存パッケージインストール
+        run: pip install cryptography
       - name: データアナリストエージェント実行
         id: run
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          SEARCH_CONSOLE_SITES: ${{ secrets.SEARCH_CONSOLE_SITES }}
         run: |
           chmod +x scripts/agents/analyst.sh
           bash scripts/agents/analyst.sh
