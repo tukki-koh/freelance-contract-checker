@@ -11,7 +11,7 @@ def stripe_get(path):
         headers={"Authorization": f"Bearer {os.environ['STRIPE_SECRET_KEY']}"}
     )
     try:
-        return json.loads(urllib.request.urlopen(req).read())
+        return json.loads(urllib.request.urlopen(req).read(), strict=False)
     except:
         return {}
 
@@ -22,7 +22,7 @@ sub_data = stripe_get("subscriptions?limit=1")
 active_subs = sub_data.get("total_count", 0)
 
 # --- GA4 データ取得 ---
-sa_json = json.loads(os.environ["GOOGLE_SERVICE_ACCOUNT_JSON"])
+sa_json = json.loads(os.environ["GOOGLE_SERVICE_ACCOUNT_JSON"], strict=False)
 property_id = os.environ["GA4_PROPERTY_ID"]
 
 import urllib.parse, time, hmac, hashlib, base64, struct
@@ -59,7 +59,7 @@ def get_google_token(sa):
         }).encode(),
         headers={"Content-Type": "application/x-www-form-urlencoded"}
     )
-    resp = json.loads(urllib.request.urlopen(token_req).read())
+    resp = json.loads(urllib.request.urlopen(token_req).read(), strict=False)
     return resp.get("access_token", "")
 
 try:
@@ -72,7 +72,7 @@ try:
         }).encode(),
         headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
     )
-    ga_data = json.loads(urllib.request.urlopen(ga_req).read())
+    ga_data = json.loads(urllib.request.urlopen(ga_req).read(), strict=False)
     rows = ga_data.get("rows", [{}])
     sessions = rows[0].get("metricValues", [{}, {}, {}])[0].get("value", "0") if rows else "0"
     users = rows[0].get("metricValues", [{}, {}, {}])[1].get("value", "0") if rows else "0"
@@ -125,7 +125,7 @@ api_req = urllib.request.Request(
         "content-type": "application/json"
     }
 )
-res = json.loads(urllib.request.urlopen(api_req).read())
+res = json.loads(urllib.request.urlopen(api_req).read(), strict=False)
 print(res["content"][0]["text"])
 PYEOF
 )
