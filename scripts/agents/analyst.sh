@@ -2,7 +2,7 @@
 set -e
 
 REPORT=$(python3 << 'PYEOF'
-import json, urllib.request, os, datetime
+import json, urllib.request, os, datetime, base64 as _b64
 
 # --- Stripe データ取得 ---
 def stripe_get(path):
@@ -22,7 +22,7 @@ sub_data = stripe_get("subscriptions?limit=1")
 active_subs = sub_data.get("total_count", 0)
 
 # --- GA4 データ取得 ---
-sa_json = json.loads(os.environ["GOOGLE_SERVICE_ACCOUNT_JSON"], strict=False)
+sa_json = json.loads(_b64.b64decode(os.environ["GOOGLE_SERVICE_ACCOUNT_B64"]).decode())
 property_id = os.environ["GA4_PROPERTY_ID"]
 
 import urllib.parse, time, hmac, hashlib, base64, struct
