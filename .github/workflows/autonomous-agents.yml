@@ -65,6 +65,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: 営業エージェント実行
         id: run
+        env:
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
         run: |
           chmod +x scripts/agents/sales.sh
           bash scripts/agents/sales.sh
