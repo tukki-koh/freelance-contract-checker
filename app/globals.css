@@ -2,7 +2,13 @@
 
 :root {
   --background: #F8F7F4;
-  --foreground: #1a1a2e;
+  --foreground: #0B1220;
+  --brand: #2563EB;
+  --brand-ink: #1D4ED8;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -11,25 +17,65 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic UI', 'Segoe UI', sans-serif;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 * {
   box-sizing: border-box;
 }
 
-::-webkit-scrollbar {
-  width: 6px;
+::selection {
+  background: #dbeafe;
+  color: #1e3a8a;
 }
 
+/* 見出しは字間を締めてプロっぽく */
+h1, h2, h3 {
+  letter-spacing: -0.02em;
+}
+
+/* ヒーロー背景の繊細なドットグリッド */
+.hero-grid {
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(37, 99, 235, 0.10) 1px, transparent 0);
+  background-size: 22px 22px;
+}
+
+/* ブランドのソフトなオーロラ発光 */
+.aurora {
+  background:
+    radial-gradient(60% 60% at 15% 0%, rgba(37, 99, 235, 0.14) 0%, transparent 60%),
+    radial-gradient(50% 50% at 100% 10%, rgba(16, 185, 129, 0.10) 0%, transparent 55%);
+}
+
+/* ふわっと浮き上がるアニメーション */
+@keyframes floatUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-float-up {
+  animation: floatUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* 無限に流れる信頼ロゴ帯 */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
 ::-webkit-scrollbar-track {
   background: #f1f0ed;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #c5c3bc;
-  border-radius: 3px;
+  background: #cbd5e1;
+  border-radius: 4px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: #9e9b94;
+  background: #94a3b8;
 }
