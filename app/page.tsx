@@ -112,7 +112,7 @@ export default function LandingPage() {
                   href="/signup?next=/pricing"
                   className="inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 px-8 py-4 rounded-xl font-medium text-base transition-all border border-slate-200 shadow-sm"
                 >
-                  500円で本診断する
+                  300円で本診断する
                 </Link>
               </div>
 
@@ -213,8 +213,8 @@ export default function LandingPage() {
           <div className="max-w-6xl mx-auto px-6 py-8 grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               { v: '30秒', l: '平均診断時間' },
-              { v: '1/60', l: '弁護士相談比のコスト' },
-              { v: '¥500〜', l: '1回あたりの料金' },
+              { v: '¥980', l: '使い放題（月額）' },
+              { v: '¥300〜', l: '1回だけのお試し' },
               { v: '4.8 / 5', l: '利用者の満足度' },
             ].map(({ v, l }) => (
               <div key={l} className="text-center">
@@ -347,7 +347,7 @@ export default function LandingPage() {
               {[
                 {
                   name: '田中さん', role: 'Webデザイナー・フリーランス歴3年', initial: '田',
-                  text: '「支払いは納品確認後120日以内」という条項を見落としていました。指摘してもらって初めて気づき、交渉して60日に修正。500円でよかったです。',
+                  text: '「支払いは納品確認後120日以内」という条項を見落としていました。指摘してもらって初めて気づき、交渉して60日に修正。数百円でこれは安すぎます。',
                 },
                 {
                   name: '山田さん', role: 'エンジニア・副業フリーランス', initial: '山',
@@ -381,32 +381,53 @@ export default function LandingPage() {
         </section>
 
         {/* ================================================================
-            弁護士との比較
+            比較（弁護士 / 汎用AI / 本サービス）
         ================================================================ */}
         <section className="max-w-6xl mx-auto px-6 py-20">
           <div className="max-w-2xl mb-10">
             <span className="text-xs font-semibold text-blue-600 tracking-wide uppercase">Comparison</span>
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mt-2">弁護士に頼むのと、どう違うの？</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mt-2">
+              汎用AIでも調べられるのに、なぜ？
+            </h2>
+            <p className="text-slate-500 mt-3">
+              ChatGPTなどの汎用AIは万能ですが、最新の法改正や条文番号は曖昧になりがち。専門特化だから、より安く・より正確に。
+            </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-5">
+          <div className="grid md:grid-cols-3 gap-5">
             {/* 弁護士 */}
             <div className="rounded-2xl border border-slate-200 bg-white p-7">
-              <p className="text-sm font-semibold text-slate-400 mb-4">弁護士に相談する場合</p>
+              <p className="text-sm font-semibold text-slate-400 mb-1">弁護士に相談</p>
+              <p className="text-2xl font-extrabold text-slate-900 mb-4">1〜3万円<span className="text-xs font-medium text-slate-400"> / 時</span></p>
               <ul className="space-y-3 text-sm text-slate-600">
-                {['1時間あたり1〜3万円が相場', '予約から回答まで数日かかることも', '「この条項だけ確認したい」には少し重い'].map((t) => (
+                {['最も正確だが高コスト', '予約から回答まで数日', '1条項だけ確認するには重い'].map((t) => (
                   <li key={t} className="flex items-start gap-2.5">
                     <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-slate-300 shrink-0" />{t}
                   </li>
                 ))}
               </ul>
             </div>
-            {/* ツール */}
+
+            {/* 汎用AI */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-7">
+              <p className="text-sm font-semibold text-slate-400 mb-1">汎用AIツール</p>
+              <p className="text-2xl font-extrabold text-slate-900 mb-4">約3,000円<span className="text-xs font-medium text-slate-400"> / 月</span></p>
+              <ul className="space-y-3 text-sm text-slate-600">
+                {['何でもできるが法律は不得意', '最新の法改正を外すことがある', '条文番号や上限日数が曖昧'].map((t) => (
+                  <li key={t} className="flex items-start gap-2.5">
+                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-slate-300 shrink-0" />{t}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* 本サービス（推し） */}
             <div className="rounded-2xl border-2 border-blue-500 bg-gradient-to-br from-blue-50/70 to-indigo-50/40 p-7 relative shadow-lg shadow-blue-600/10">
-              <span className="absolute -top-3 left-7 bg-blue-600 text-white text-xs font-bold px-3 py-0.5 rounded-full">日常のチェックに最適</span>
-              <p className="text-sm font-semibold text-blue-600 mb-4">契約書チェッカーの場合</p>
+              <span className="absolute -top-3 left-7 bg-blue-600 text-white text-xs font-bold px-3 py-0.5 rounded-full">いちばん賢い選択</span>
+              <p className="text-sm font-semibold text-blue-600 mb-1">契約書チェッカー</p>
+              <p className="text-2xl font-extrabold text-slate-900 mb-4">300円〜<span className="text-xs font-medium text-slate-400"> / 月980円で無制限</span></p>
               <ul className="space-y-3 text-sm text-slate-700">
-                {['500円・30秒で結果が出る', '「どの条項が・なぜ問題か」を条文番号付きで', '弁護士に相談すべきかの判断材料になる'].map((t) => (
+                {['フリーランス新法・下請法に特化', '条文番号を根拠に指摘＋修正案', '汎用AIの約1/3の価格で使い放題'].map((t) => (
                   <li key={t} className="flex items-start gap-2.5">
                     <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />{t}
                   </li>
@@ -445,49 +466,50 @@ export default function LandingPage() {
                 </Link>
               </div>
 
-              {/* 単発（推し） */}
-              <div className="rounded-2xl border-2 border-blue-500 bg-white p-7 flex flex-col relative shadow-xl shadow-blue-600/10 md:-translate-y-3">
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold px-3 py-0.5 rounded-full whitespace-nowrap">よく選ばれています</span>
-                </div>
+              {/* 単発 */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-7 flex flex-col">
                 <div className="flex items-center gap-2 mb-3">
-                  <FileSearch className="h-4 w-4 text-blue-500" />
-                  <span className="text-xs font-medium text-blue-600">単発診断</span>
+                  <FileSearch className="h-4 w-4 text-slate-400" />
+                  <span className="text-xs font-medium text-slate-500">単発診断</span>
                 </div>
                 <div className="mb-1">
-                  <span className="text-4xl font-extrabold text-slate-900">¥500</span>
+                  <span className="text-4xl font-extrabold text-slate-900">¥300</span>
                   <span className="text-slate-400 text-xs ml-1">/ 1回</span>
                 </div>
-                <p className="text-xs text-slate-400 mb-5">弁護士相談の約60分の1</p>
+                <p className="text-xs text-slate-400 mb-5">コーヒー1杯より安く、まず1回だけ</p>
                 <ul className="space-y-2.5 mb-7 flex-1 text-sm text-slate-600">
                   <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />全条項チェック</li>
                   <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />条文番号付きで指摘</li>
                   <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />修正案の提示</li>
                   <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />結果は永久保存</li>
                 </ul>
-                <Link href="/signup?next=/pricing" className="block text-center bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 rounded-xl font-bold transition-all text-sm shadow-lg shadow-blue-600/25">
-                  500円で診断する
+                <Link href="/signup?next=/pricing" className="block text-center bg-slate-100 hover:bg-slate-200 text-slate-800 py-3 rounded-xl font-medium transition-colors text-sm">
+                  300円で診断する
                 </Link>
               </div>
 
-              {/* 法人 */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-7 flex flex-col">
+              {/* 月額使い放題（推し） */}
+              <div className="rounded-2xl border-2 border-blue-500 bg-white p-7 flex flex-col relative shadow-xl shadow-blue-600/10 md:-translate-y-3">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <span className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold px-3 py-0.5 rounded-full whitespace-nowrap">人気AIの約1/3で使い放題</span>
+                </div>
                 <div className="flex items-center gap-2 mb-3">
-                  <Building2 className="h-4 w-4 text-slate-400" />
-                  <span className="text-xs font-medium text-slate-500">法人・月額</span>
+                  <Building2 className="h-4 w-4 text-blue-500" />
+                  <span className="text-xs font-medium text-blue-600">定額 使い放題</span>
                 </div>
                 <div className="mb-1">
-                  <span className="text-4xl font-extrabold text-slate-900">¥2,980</span>
+                  <span className="text-4xl font-extrabold text-slate-900">¥980</span>
                   <span className="text-slate-400 text-xs ml-1">/ 月</span>
                 </div>
-                <p className="text-xs text-slate-400 mb-5">月6件以上なら月額が割安</p>
+                <p className="text-xs text-slate-400 mb-5">ChatGPTなど汎用AI（月約3,000円）の約1/3</p>
                 <ul className="space-y-2.5 mb-7 flex-1 text-sm text-slate-600">
                   <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />診断数は無制限</li>
                   <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />発注側のチェックも対応</li>
                   <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />優先サポート</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />いつでも解約できます</li>
                 </ul>
-                <Link href="/signup?next=/pricing" className="block text-center bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl font-bold transition-colors text-sm">
-                  法人プランを始める
+                <Link href="/signup?next=/pricing" className="block text-center bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 rounded-xl font-bold transition-all text-sm shadow-lg shadow-blue-600/25">
+                  月980円で使い放題にする
                 </Link>
               </div>
             </div>
@@ -589,7 +611,7 @@ export default function LandingPage() {
             </h2>
             <p className="text-slate-500 mb-8 leading-relaxed">
               無料登録で1回だけ診断できます。クレジットカードの登録は不要。
-              気に入ったら、そのあとで500円プランを選んでいただければ大丈夫です。
+              気に入ったら、300円の単発か、月980円の使い放題を選んでいただければ大丈夫です。
             </p>
             <Link
               href="/signup"

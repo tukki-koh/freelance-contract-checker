@@ -130,9 +130,9 @@ export function PricingCards({ plans, currentSub }: Props) {
                       決済ページへ移動中...
                     </>
                   ) : plan.id === 'single' ? (
-                    '500円で購入する'
+                    `${plan.price}円で購入する`
                   ) : (
-                    '月額2,980円で申し込む'
+                    `月額${plan.price.toLocaleString()}円で申し込む`
                   )}
                 </Button>
               )}

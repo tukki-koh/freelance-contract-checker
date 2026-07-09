@@ -13,7 +13,7 @@ export const PLANS: Record<PlanType, PlanConfig> = {
   single: {
     id: 'single',
     name: '単発診断プラン',
-    price: 500,
+    price: 300,
     interval: 'once',
     description: '1回の契約書診断に使えるクレジット',
     features: [
@@ -27,10 +27,10 @@ export const PLANS: Record<PlanType, PlanConfig> = {
   },
   corporate: {
     id: 'corporate',
-    name: '法人向け定額プラン',
-    price: 2980,
+    name: '定額使い放題プラン',
+    price: 980,
     interval: 'month',
-    description: '毎月無制限で契約書を診断できるプラン',
+    description: '毎月無制限で契約書を診断できるプラン。人気AIツールの約1/3の価格',
     badge: '人気',
     features: [
       '単発プランの全機能',

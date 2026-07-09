@@ -68,17 +68,17 @@ function Paywall({ reason }: { reason: string }) {
           <div className="flex items-center gap-2 mb-2">
             <Zap className="h-4 w-4 text-yellow-400" />
             <span className="text-sm font-semibold text-slate-100">単発診断</span>
-            <span className="text-xs text-slate-400 ml-auto">¥500</span>
+            <span className="text-xs text-slate-400 ml-auto">¥300</span>
           </div>
           <p className="text-xs text-slate-400">1回の診断クレジット。まずはお試しに。</p>
         </div>
         <div className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-4">
           <div className="flex items-center gap-2 mb-2">
             <Building2 className="h-4 w-4 text-blue-400" />
-            <span className="text-sm font-semibold text-slate-100">法人定額</span>
-            <span className="text-xs text-slate-400 ml-auto">¥2,980/月</span>
+            <span className="text-sm font-semibold text-slate-100">定額使い放題</span>
+            <span className="text-xs text-slate-400 ml-auto">¥980/月</span>
           </div>
-          <p className="text-xs text-slate-400">月間無制限。複数の契約書を効率よく管理。</p>
+          <p className="text-xs text-slate-400">月間無制限。人気AIの約1/3で使い放題。</p>
         </div>
       </div>
     </div>

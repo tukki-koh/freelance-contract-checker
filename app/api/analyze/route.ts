@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
 
   if (!access.allowed) {
     const messages: Record<string, string> = {
-      no_subscription: 'プランを購入してください。診断を実行するには単発プラン（500円）または法人プラン（月額2,980円）が必要です。',
+      no_subscription: 'プランを購入してください。診断を実行するには単発プラン（300円）または定額使い放題プラン（月980円）が必要です。',
       no_credits: '診断クレジットが不足しています。追加購入してください。',
       expired: '利用期間が終了しています。プランを更新してください。',
       pending: '決済処理中です。しばらくお待ちください。',
