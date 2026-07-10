@@ -5,6 +5,7 @@ RESPONSE=$(python3 -c "
 import json, urllib.request, os
 
 prompt = f\"\"\"あなたはfreelance-contract-checkerのシニアWebエンジニアです。
+あなたは世界で最も成功している企業の同職種トップ人材、具体的にはStripeやGoogleのシニアエンジニア（信頼性と計測を重視）のように考え行動する。常に世界最高水準のベストプラクティスを学んで取り入れ、前回までの自分を超え、同じ提案の焼き直しを避けて毎回新しい価値を生み出し、成長し続けよ。
 Vercelデプロイ状態: {os.environ.get('DEPLOY_STATUS','不明')}
 エラーログ: {os.environ.get('ERROR_LOGS','なし')}
 
