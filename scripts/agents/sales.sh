@@ -17,92 +17,119 @@ from email.mime.multipart import MIMEMultipart
 
 GMAIL_ADDRESS = os.environ.get("GMAIL_ADDRESS", "")
 GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "")
+SUPA_URL = os.environ.get("AGENT_SUPABASE_URL", "").rstrip("/")
+SUPA_ANON = os.environ.get("AGENT_SUPABASE_ANON_KEY", "")
+LOG_TOKEN = os.environ.get("AGENT_LOG_TOKEN", "")
+DAILY_CAP = 5           # 1日の送信上限（平日）
+CANDIDATES = 8          # Claudeに出させる候補数（重複除外の余裕分）
 today = date.today()
 
-# --- Claude にターゲット・メール文案を生成させる ---
+# --- 送信権を原子的に取得（未送信 かつ 本日上限未満なら true）---
+def claim_email(email, org, subject):
+    if not (SUPA_URL and SUPA_ANON and LOG_TOKEN):
+        return False
+    payload = json.dumps({
+        "p_token": LOG_TOKEN, "p_email": email,
+        "p_org": org, "p_subject": subject, "p_daily_cap": DAILY_CAP,
+    }).encode()
+    req = urllib.request.Request(
+        f"{SUPA_URL}/rest/v1/rpc/claim_sales_email", data=payload,
+        headers={"apikey": SUPA_ANON, "Authorization": f"Bearer {SUPA_ANON}", "Content-Type": "application/json"},
+    )
+    try:
+        return json.loads(urllib.request.urlopen(req, timeout=10).read()) is True
+    except Exception as e:
+        print(f"[claim失敗] {e}")
+        return False
+
+# --- Claude に複数の営業ターゲットを生成させる ---
 prompt = f"""あなたはfreelance-contract-checkerの営業担当です。
 今日: {today}
-サービス: フリーランスの契約書リスク診断ツール（月額課金）
-現状: 売上¥0、認知度低い
+サービス: フリーランスの契約書リスク診断ツール（フリーランス新法・下請法の違反をAI診断。単発300円/月額980円）
+現状: 認知拡大フェーズ
 
-以下を出力せよ：
+フリーランス支援に関わる実在の団体・企業・エージェンシー・士業事務所を{CANDIDATES}件挙げ、
+それぞれに送る営業メールを作成せよ。各社バラバラの相手にする（重複させない）。
 
-【1. 今日の営業ターゲット】
-パートナー候補または法人ターゲット1件
-- 組織名（実在する団体・企業）
-- 公開されているお問い合わせ先メールアドレス（info@...等の一般公開アドレスのみ）
-- ターゲット理由（1行）
+条件：
+- 公開されている一般問い合わせ先メール（info@ / contact@ 等）のみ。個人アドレスは不可。
+- 本文は200字以内、フリーランス支援の文脈で自然に紹介。押しつけがましくしない。
+- 特定電子メール法に配慮し、末尾に「不要の場合は本メールへの返信で配信停止できます」を入れる。
+- 署名: ワークシールド営業部 / https://freelance-contract-checker.vercel.app
 
-【2. 送信メール（日本語）】
-件名: （40文字以内）
-本文: （200文字以内、フリーランス支援の文脈でサービスを自然に紹介、押しつけがましくない）
-署名: ワークシールド営業部 / https://freelance-contract-checker.vercel.app
-
-【出力形式】
-TARGET_EMAIL: xxx@example.com
-SUBJECT: 件名テキスト
+各件を以下の形式で厳密に出力（{CANDIDATES}件分くり返す）：
+===
+ORG: 組織名
+EMAIL: xxx@example.com
+SUBJECT: 件名（40字以内）
 BODY:
-本文テキスト（複数行可）
-END_BODY"""
+本文（複数行可）
+END
+"""
 
 payload = json.dumps({
   "model": "claude-opus-4-8",
-  "max_tokens": 1000,
+  "max_tokens": 3000,
   "messages": [{"role": "user", "content": prompt}]
 }).encode()
-
 req = urllib.request.Request(
-  "https://api.anthropic.com/v1/messages",
-  data=payload,
-  headers={
-    "x-api-key": os.environ["ANTHROPIC_API_KEY"],
-    "anthropic-version": "2023-06-01",
-    "content-type": "application/json"
-  }
+  "https://api.anthropic.com/v1/messages", data=payload,
+  headers={"x-api-key": os.environ["ANTHROPIC_API_KEY"], "anthropic-version": "2023-06-01", "content-type": "application/json"},
 )
 res = json.loads(urllib.request.urlopen(req).read())
 output = res["content"][0]["text"]
-print(output)
 
-# --- メール送信 ---
-try:
-  lines = output.splitlines()
-  target_email = ""
-  subject = ""
-  body_lines = []
-  in_body = False
+# --- パース ---
+def parse_blocks(text):
+    blocks, cur, body_mode, body = [], {}, False, []
+    for line in text.splitlines():
+        s = line.strip()
+        if s == "===":
+            if cur.get("email"):
+                cur["body"] = "\n".join(body).strip(); blocks.append(cur)
+            cur, body_mode, body = {}, False, []
+        elif s.startswith("ORG:"): cur["org"] = s[4:].strip()
+        elif s.startswith("EMAIL:"): cur["email"] = s[6:].strip()
+        elif s.startswith("SUBJECT:"): cur["subject"] = s[8:].strip()
+        elif s == "BODY:": body_mode = True
+        elif s == "END":
+            cur["body"] = "\n".join(body).strip(); body_mode = False
+            if cur.get("email"): blocks.append(cur)
+            cur, body = {}, []
+        elif body_mode: body.append(line)
+    if cur.get("email") and "body" in cur and cur not in blocks: blocks.append(cur)
+    return blocks
 
-  for line in lines:
-    if line.startswith("TARGET_EMAIL:"):
-      target_email = line.replace("TARGET_EMAIL:", "").strip()
-    elif line.startswith("SUBJECT:"):
-      subject = line.replace("SUBJECT:", "").strip()
-    elif line.strip() == "BODY:":
-      in_body = True
-    elif line.strip() == "END_BODY":
-      in_body = False
-    elif in_body:
-      body_lines.append(line)
+targets = parse_blocks(output)
 
-  body = "\n".join(body_lines).strip()
+# --- 上限まで送信（重複・上限はDB側で原子的に判定）---
+sent = []
+for t in targets:
+    email = (t.get("email") or "").strip()
+    subject = (t.get("subject") or "").strip()
+    body = (t.get("body") or "").strip()
+    org = (t.get("org") or "").strip()
+    if not (email and subject and body): continue
+    if not (GMAIL_ADDRESS and GMAIL_APP_PASSWORD):
+        print("[Gmail未設定のため送信スキップ]"); break
+    if not claim_email(email, org, subject):
+        continue  # 送信済み or 本日上限到達
+    try:
+        msg = MIMEMultipart()
+        msg["From"] = GMAIL_ADDRESS; msg["To"] = email; msg["Subject"] = subject
+        msg.attach(MIMEText(body, "plain", "utf-8"))
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
+            server.sendmail(GMAIL_ADDRESS, email, msg.as_string())
+        sent.append(f"{org or email} <{email}>")
+        print(f"[送信完了] {org} <{email}> / {subject}")
+    except Exception as e:
+        print(f"[送信エラー] {email}: {e}")
 
-  if target_email and subject and body and GMAIL_ADDRESS and GMAIL_APP_PASSWORD:
-    msg = MIMEMultipart()
-    msg["From"] = GMAIL_ADDRESS
-    msg["To"] = target_email
-    msg["Subject"] = subject
-    msg.attach(MIMEText(body, "plain", "utf-8"))
-
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-      server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
-      server.sendmail(GMAIL_ADDRESS, target_email, msg.as_string())
-
-    print(f"\n[送信完了] To: {target_email} / 件名: {subject}")
-  else:
-    print(f"\n[送信スキップ] target={target_email}, subject={subject}, body_len={len(body)}")
-except Exception as e:
-  print(f"\n[メール送信エラー] {e}")
-
+print(f"\n本日この実行での送信: {len(sent)}件 / 1日上限{DAILY_CAP}件")
+for s in sent: print(" -", s)
+if not sent:
+    print("（本日の上限到達、または新規ターゲットなし）")
 PYEOF
 )
 
