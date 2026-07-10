@@ -1,0 +1,43 @@
+#!/bin/bash
+set -e
+
+RESPONSE=$(python3 << 'PYEOF'
+import json, urllib.request, os
+from datetime import date
+
+prompt = f"""あなたはfreelance-contract-checkerのプロダクトマネージャーです。
+今日: {date.today()}
+サービス: フリーランス新法・下請法の契約書リスクをAI診断するSaaS（単発300円/月額980円）
+現状: 認知拡大フェーズ、売上小規模
+
+長期的なプロダクト価値最大化の観点から、毎回以下を実行せよ：
+
+【1. 次に作るべき機能の優先順位】
+- ユーザー価値×実装容易性で最も優先すべき機能1件（理由付き）
+- その機能がリテンション/CVRのどちらにどう効くか
+
+【2. エンジニアへの開発指示】
+- 上記機能をエンジニアが着手できる粒度に分解（1〜3タスク）
+
+【3. ロードマップ視点】
+- 今月・来月・再来月で狙う山を各1行
+
+200〜400字程度、要点のみ。フォーマットは【1】【2】【3】で区切る。"""
+
+payload = json.dumps({
+  "model": "claude-opus-4-8", "max_tokens": 1200,
+  "messages": [{"role": "user", "content": prompt}]
+}).encode()
+req = urllib.request.Request(
+  "https://api.anthropic.com/v1/messages", data=payload,
+  headers={"x-api-key": os.environ["ANTHROPIC_API_KEY"], "anthropic-version": "2023-06-01", "content-type": "application/json"},
+)
+res = json.loads(urllib.request.urlopen(req).read())
+print(res["content"][0]["text"])
+PYEOF
+)
+
+echo "report<<EOF" >> $GITHUB_OUTPUT
+echo "$RESPONSE" >> $GITHUB_OUTPUT
+echo "EOF" >> $GITHUB_OUTPUT
+echo "$RESPONSE"

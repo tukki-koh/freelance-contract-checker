@@ -21,6 +21,10 @@ ux = os.environ.get('UX_REPORT', '報告なし')
 seo = os.environ.get('SEO_REPORT', '報告なし')
 cs = os.environ.get('CS_REPORT', '報告なし')
 analyst = os.environ.get('ANALYST_REPORT', '報告なし')
+pm = os.environ.get('PM_REPORT', '報告なし')
+finance = os.environ.get('FINANCE_REPORT', '報告なし')
+pr = os.environ.get('PR_REPORT', '報告なし')
+competitor = os.environ.get('COMPETITOR_REPORT', '報告なし')
 
 prompt = f'''あなたは専属秘書です。以下の各部門の昨日の活動を朝5時の日次報告としてまとめてください。
 
@@ -33,18 +37,22 @@ UX: {ux}
 SEO・GEO: {seo}
 カスタマーサクセス: {cs}
 データアナリスト: {analyst}
+プロダクトマネージャー: {pm}
+財務・経理: {finance}
+広報・PR: {pr}
+競合リサーチ: {competitor}
 
 以下のルールで出力せよ：
 - 記号（*、#、【】、---等）は一切使わない
 - 箇条書きは「・」のみ使用
 - 各部門は1行以内
 - 最後に「オーナーへ」として今日中にやるべきことを3件以内で端的に記載
-- 全体200字以内に収める
+- 重要な部門を優先し、全体320字以内に収める（動きのない部門は省略可）
 - 余計な挨拶・前置き・締めの言葉は不要'''
 
 payload = json.dumps({
   'model': 'claude-opus-4-8',
-  'max_tokens': 400,
+  'max_tokens': 600,
   'messages': [{'role': 'user', 'content': prompt}]
 }).encode()
 

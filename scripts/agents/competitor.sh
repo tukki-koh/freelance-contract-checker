@@ -1,0 +1,42 @@
+#!/bin/bash
+set -e
+
+RESPONSE=$(python3 << 'PYEOF'
+import json, urllib.request, os
+from datetime import date
+
+prompt = f"""あなたはfreelance-contract-checkerの競合リサーチャーです。
+今日: {date.today()}
+自社: フリーランス新法・下請法の契約書リスクをAI診断するSaaS（単発300円/月額980円、特化型）
+競合カテゴリ: 汎用AI（ChatGP, Claude等）、契約書レビューAI、リーガルテック、弁護士相談サービス
+
+長期的な差別化の観点から、毎回以下を実行せよ：
+
+【1. 競合ウォッチ】
+- 注目すべき競合1件と、その強み/弱み（価格・機能・ターゲットの観点）
+
+【2. 自社が勝てる差別化ポイント】
+- 上記競合に対し自社が優位に立てる点1つと、LP/訴求への反映案
+
+【3. 脅威と対応】
+- 自社にとっての最大の脅威1件と、今取るべき先手1つ
+
+200〜350字、要点のみ。【1】【2】【3】で区切る。推測を断定で書かず、確度が低い点は「推定」と明示。"""
+
+payload = json.dumps({
+  "model": "claude-opus-4-8", "max_tokens": 1000,
+  "messages": [{"role": "user", "content": prompt}]
+}).encode()
+req = urllib.request.Request(
+  "https://api.anthropic.com/v1/messages", data=payload,
+  headers={"x-api-key": os.environ["ANTHROPIC_API_KEY"], "anthropic-version": "2023-06-01", "content-type": "application/json"},
+)
+res = json.loads(urllib.request.urlopen(req).read())
+print(res["content"][0]["text"])
+PYEOF
+)
+
+echo "report<<EOF" >> $GITHUB_OUTPUT
+echo "$RESPONSE" >> $GITHUB_OUTPUT
+echo "EOF" >> $GITHUB_OUTPUT
+echo "$RESPONSE"
