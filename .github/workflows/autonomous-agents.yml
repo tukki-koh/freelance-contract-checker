@@ -14,6 +14,10 @@ env:
   ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
   SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  # LIVEダッシュボード用 稼働ログ
+  AGENT_SUPABASE_URL: ${{ secrets.AGENT_SUPABASE_URL }}
+  AGENT_SUPABASE_ANON_KEY: ${{ secrets.AGENT_SUPABASE_ANON_KEY }}
+  AGENT_LOG_TOKEN: ${{ secrets.AGENT_LOG_TOKEN }}
 
 jobs:
   engineer-agent:
@@ -41,7 +45,7 @@ jobs:
           ERROR_LOGS: "Sentry未設定"
         run: |
           chmod +x scripts/agents/engineer.sh
-          bash scripts/agents/engineer.sh
+          bash scripts/agents/run.sh engineer scripts/agents/engineer.sh
 
   marketing-agent:
     name: マーケティング担当
@@ -54,7 +58,7 @@ jobs:
         id: run
         run: |
           chmod +x scripts/agents/marketing.sh
-          bash scripts/agents/marketing.sh
+          bash scripts/agents/run.sh marketing scripts/agents/marketing.sh
 
   sales-agent:
     name: 営業担当
@@ -70,7 +74,7 @@ jobs:
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
         run: |
           chmod +x scripts/agents/sales.sh
-          bash scripts/agents/sales.sh
+          bash scripts/agents/run.sh sales scripts/agents/sales.sh
 
   ceo-agent:
     name: ワークシールドCEO
@@ -83,7 +87,7 @@ jobs:
         id: run
         run: |
           chmod +x scripts/agents/ceo.sh
-          bash scripts/agents/ceo.sh
+          bash scripts/agents/run.sh ceo scripts/agents/ceo.sh
 
   legal-agent:
     name: 法務アドバイザー
@@ -96,7 +100,7 @@ jobs:
         id: run
         run: |
           chmod +x scripts/agents/legal.sh
-          bash scripts/agents/legal.sh
+          bash scripts/agents/run.sh legal scripts/agents/legal.sh
 
   ux-agent:
     name: UXライター兼コンテンツエディター
@@ -109,7 +113,7 @@ jobs:
         id: run
         run: |
           chmod +x scripts/agents/ux-writer.sh
-          bash scripts/agents/ux-writer.sh
+          bash scripts/agents/run.sh ux scripts/agents/ux-writer.sh
 
   seo-agent:
     name: SEO・GEOスペシャリスト
@@ -122,7 +126,7 @@ jobs:
         id: run
         run: |
           chmod +x scripts/agents/seo.sh
-          bash scripts/agents/seo.sh
+          bash scripts/agents/run.sh seo scripts/agents/seo.sh
 
   cs-agent:
     name: カスタマーサクセス担当
@@ -135,7 +139,7 @@ jobs:
         id: run
         run: |
           chmod +x scripts/agents/cs.sh
-          bash scripts/agents/cs.sh
+          bash scripts/agents/run.sh cs scripts/agents/cs.sh
 
   analyst-agent:
     name: データアナリスト
@@ -155,7 +159,7 @@ jobs:
           SEARCH_CONSOLE_SITES: ${{ secrets.SEARCH_CONSOLE_SITES }}
         run: |
           chmod +x scripts/agents/analyst.sh
-          bash scripts/agents/analyst.sh
+          bash scripts/agents/run.sh analyst scripts/agents/analyst.sh
 
   secretary-agent:
     name: 専属秘書・進行管理
@@ -177,4 +181,4 @@ jobs:
           ANALYST_REPORT: ${{ needs.analyst-agent.outputs.report }}
         run: |
           chmod +x scripts/agents/secretary.sh
-          bash scripts/agents/secretary.sh
+          bash scripts/agents/run.sh secretary scripts/agents/secretary.sh
