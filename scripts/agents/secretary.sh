@@ -25,6 +25,7 @@ pm = os.environ.get('PM_REPORT', '報告なし')
 finance = os.environ.get('FINANCE_REPORT', '報告なし')
 pr = os.environ.get('PR_REPORT', '報告なし')
 competitor = os.environ.get('COMPETITOR_REPORT', '報告なし')
+googleads = os.environ.get('GOOGLEADS_REPORT', '報告なし')
 
 prompt = f'''あなたは専属秘書です。以下の各部門の昨日の活動を朝5時の日次報告としてまとめてください。
 
@@ -41,6 +42,7 @@ SEO・GEO: {seo}
 財務・経理: {finance}
 広報・PR: {pr}
 競合リサーチ: {competitor}
+Google広告最適化: {googleads}
 
 以下のルールで出力せよ：
 - 記号（*、#、【】、---等）は一切使わない

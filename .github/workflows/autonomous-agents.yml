@@ -215,10 +215,23 @@ jobs:
           chmod +x scripts/agents/competitor.sh
           bash scripts/agents/run.sh competitor scripts/agents/competitor.sh
 
+  googleads-agent:
+    name: Google広告 最適化担当
+    runs-on: ubuntu-latest
+    outputs:
+      report: ${{ steps.run.outputs.report }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Google広告最適化エージェント実行
+        id: run
+        run: |
+          chmod +x scripts/agents/googleads.sh
+          bash scripts/agents/run.sh googleads scripts/agents/googleads.sh
+
   secretary-agent:
     name: 専属秘書・進行管理
     runs-on: ubuntu-latest
-    needs: [engineer-agent, marketing-agent, sales-agent, ceo-agent, legal-agent, ux-agent, seo-agent, cs-agent, analyst-agent, pm-agent, finance-agent, pr-agent, competitor-agent]
+    needs: [engineer-agent, marketing-agent, sales-agent, ceo-agent, legal-agent, ux-agent, seo-agent, cs-agent, analyst-agent, pm-agent, finance-agent, pr-agent, competitor-agent, googleads-agent]
     if: always()
     steps:
       - uses: actions/checkout@v4
@@ -237,6 +250,7 @@ jobs:
           FINANCE_REPORT: ${{ needs.finance-agent.outputs.report }}
           PR_REPORT: ${{ needs.pr-agent.outputs.report }}
           COMPETITOR_REPORT: ${{ needs.competitor-agent.outputs.report }}
+          GOOGLEADS_REPORT: ${{ needs.googleads-agent.outputs.report }}
         run: |
           chmod +x scripts/agents/secretary.sh
           bash scripts/agents/run.sh secretary scripts/agents/secretary.sh
