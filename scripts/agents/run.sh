@@ -16,8 +16,9 @@ OUT_LOG="$(mktemp)"
 bash "$SCRIPT" 2>&1 | tee "$OUT_LOG"
 CODE="${PIPESTATUS[0]}"
 
-# 出力の末尾を要約として送る（記号・空行を軽く整形）
-SUMMARY="$(tr -d '\r' < "$OUT_LOG" | grep -v '^[[:space:]]*$' | tail -n 6 | tail -c 350)"
+# 出力の末尾を要約として送る（行単位で抽出。文字数制限はlib_log側でUTF-8安全に実施）
+# ※ tail -c（バイト単位）は日本語を途中で切りJSON化を壊すため使わない
+SUMMARY="$(tr -d '\r' < "$OUT_LOG" | grep -v '^[[:space:]]*$' | tail -n 6)"
 
 if [ "$CODE" -eq 0 ]; then
   agent_log "$KEY" done "$SUMMARY" "$TASK"
