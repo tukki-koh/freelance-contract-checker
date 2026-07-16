@@ -12,6 +12,22 @@ fi
 SUMMARY=$(python3 -c "
 import json, urllib.request, os
 
+def _urlopen_with_retry(req, tries=4, base_delay=3):
+    import time, urllib.error
+    for i in range(tries):
+        try:
+            return urllib.request.urlopen(req, timeout=60)
+        except urllib.error.HTTPError as e:
+            if e.code in (429, 500, 502, 503, 529) and i < tries - 1:
+                time.sleep(base_delay * (2 ** i))
+                continue
+            raise
+        except urllib.error.URLError:
+            if i < tries - 1:
+                time.sleep(base_delay * (2 ** i))
+                continue
+            raise
+
 engineer = os.environ.get('ENGINEER_REPORT', '報告なし')
 marketing = os.environ.get('MARKETING_REPORT', '報告なし')
 sales = os.environ.get('SALES_REPORT', '報告なし')
@@ -67,7 +83,7 @@ req = urllib.request.Request(
     'content-type': 'application/json'
   }
 )
-res = json.loads(urllib.request.urlopen(req).read())
+res = json.loads(_urlopen_with_retry(req).read())
 print(res['content'][0]['text'])
 ")
 
@@ -84,7 +100,7 @@ req = urllib.request.Request(
   data=payload,
   headers={'content-type': 'application/json'}
 )
-urllib.request.urlopen(req)
+_urlopen_with_retry(req)
 " <<< "$SUMMARY"
 
 echo "$SUMMARY"

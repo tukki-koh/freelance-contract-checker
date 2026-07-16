@@ -4,6 +4,22 @@ set -e
 REPORT=$(python3 << 'PYEOF'
 import json, urllib.request, os, datetime, base64 as _b64
 
+def _urlopen_with_retry(req, tries=4, base_delay=3):
+    import time, urllib.error
+    for i in range(tries):
+        try:
+            return urllib.request.urlopen(req, timeout=60)
+        except urllib.error.HTTPError as e:
+            if e.code in (429, 500, 502, 503, 529) and i < tries - 1:
+                time.sleep(base_delay * (2 ** i))
+                continue
+            raise
+        except urllib.error.URLError:
+            if i < tries - 1:
+                time.sleep(base_delay * (2 ** i))
+                continue
+            raise
+
 # --- Stripe データ取得 ---
 def stripe_get(path):
     req = urllib.request.Request(
@@ -11,7 +27,7 @@ def stripe_get(path):
         headers={"Authorization": f"Bearer {os.environ['STRIPE_SECRET_KEY']}"}
     )
     try:
-        return json.loads(urllib.request.urlopen(req).read(), strict=False)
+        return json.loads(_urlopen_with_retry(req).read(), strict=False)
     except:
         return {}
 
@@ -59,7 +75,7 @@ def get_google_token(sa):
         }).encode(),
         headers={"Content-Type": "application/x-www-form-urlencoded"}
     )
-    resp = json.loads(urllib.request.urlopen(token_req).read(), strict=False)
+    resp = json.loads(_urlopen_with_retry(token_req).read(), strict=False)
     return resp.get("access_token", "")
 
 try:
@@ -72,7 +88,7 @@ try:
         }).encode(),
         headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
     )
-    ga_data = json.loads(urllib.request.urlopen(ga_req).read(), strict=False)
+    ga_data = json.loads(_urlopen_with_retry(ga_req).read(), strict=False)
     rows = ga_data.get("rows", [{}])
     sessions = rows[0].get("metricValues", [{}, {}, {}])[0].get("value", "0") if rows else "0"
     users = rows[0].get("metricValues", [{}, {}, {}])[1].get("value", "0") if rows else "0"
@@ -126,7 +142,7 @@ api_req = urllib.request.Request(
         "content-type": "application/json"
     }
 )
-res = json.loads(urllib.request.urlopen(api_req).read(), strict=False)
+res = json.loads(_urlopen_with_retry(api_req).read(), strict=False)
 print(res["content"][0]["text"])
 PYEOF
 )
