@@ -91,6 +91,22 @@ DATE=$(TZ=Asia/Tokyo date '+%Y/%m/%d 朝5時レポート')
 python3 -c "
 import json, urllib.request, os, sys
 
+def _urlopen_with_retry(req, tries=4, base_delay=3):
+    import time, urllib.error
+    for i in range(tries):
+        try:
+            return urllib.request.urlopen(req, timeout=60)
+        except urllib.error.HTTPError as e:
+            if e.code in (429, 500, 502, 503, 529) and i < tries - 1:
+                time.sleep(base_delay * (2 ** i))
+                continue
+            raise
+        except urllib.error.URLError:
+            if i < tries - 1:
+                time.sleep(base_delay * (2 ** i))
+                continue
+            raise
+
 summary = sys.stdin.read()
 text = f'$DATE\n\n{summary}'
 payload = json.dumps({'text': text}).encode()
