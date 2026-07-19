@@ -113,6 +113,7 @@ def parse_blocks(text):
     if cur.get("url") and "body" in cur and cur not in blocks: blocks.append(cur)
     return blocks
 
+print("===RAW OUTPUT START==="); print(output[:3000]); print("===RAW OUTPUT END===")
 targets = parse_blocks(output)
 
 # --- 上限までキュー投入（送信は絶対に行わない。人間がダッシュボードで最終送信する）---
