@@ -31,6 +31,7 @@ def _urlopen_with_retry(req, tries=4, base_delay=3):
 engineer = os.environ.get('ENGINEER_REPORT', '報告なし')
 marketing = os.environ.get('MARKETING_REPORT', '報告なし')
 sales = os.environ.get('SALES_REPORT', '報告なし')
+sales_webform = os.environ.get('SALES_WEBFORM_REPORT', '報告なし')
 ceo = os.environ.get('CEO_REPORT', '報告なし')
 legal = os.environ.get('LEGAL_REPORT', '報告なし')
 ux = os.environ.get('UX_REPORT', '報告なし')
@@ -48,6 +49,7 @@ prompt = f'''あなたは専属秘書です。以下の各部門の昨日の活�
 エンジニア: {engineer}
 マーケティング: {marketing}
 営業: {sales}
+営業(Webフォーム): {sales_webform}
 CEO: {ceo}
 法務: {legal}
 UX: {ux}
