@@ -16,7 +16,7 @@ def _urlopen_with_retry(req, tries=4, base_delay=3):
     import time, urllib.error
     for i in range(tries):
         try:
-            return urllib.request.urlopen(req, timeout=60)
+            return urllib.request.urlopen(req, timeout=90)
         except urllib.error.HTTPError as e:
             if e.code in (429, 500, 502, 503, 529) and i < tries - 1:
                 time.sleep(base_delay * (2 ** i))
@@ -34,7 +34,6 @@ SUPA_URL = os.environ.get("AGENT_SUPABASE_URL", "").rstrip("/")
 SUPA_ANON = os.environ.get("AGENT_SUPABASE_ANON_KEY", "")
 LOG_TOKEN = os.environ.get("AGENT_LOG_TOKEN", "")
 DAILY_CAP = 10          # 1日にキューへ積む上限（平日）。送信自体は行わない
-CANDIDATES = 14         # Claudeに出させる候補数（重複除外の余裕分）
 today = date.today()
 
 # --- キュー投入を試みる（重複URLはfalse。送信は一切行わない）---
@@ -55,25 +54,28 @@ def queue_lead(org, url, subject, body):
         print(f"[queue失敗] {e}")
         return False
 
-# --- Claude に「メール非公開・問い合わせフォームのみ」の営業ターゲットを生成させる ---
+# --- Claude(Web検索ツール利用)に「実在確認済み」の問い合わせフォームURLを調べさせる ---
+# URLを推測させず、必ずWeb検索で実際に見つけたページのみを対象にする。
 prompt = f"""あなたはfreelance-contract-checkerの営業担当（Webフォーム経由チャネル）です。
 今日: {today}
 サービス: フリーランスの契約書リスク診断ツール（フリーランス新法・下請法の違反をAI診断。単発300円/月額980円）
-現状: 認知拡大フェーズ
 
-以下の条件に合う、フリーランス支援に関わる実在の団体・企業・エージェンシー・士業事務所を{CANDIDATES}件挙げよ。
-- 公開の問い合わせメールアドレスが無く（または見当たらず）、代わりにWebサイト上に「お問い合わせフォーム」がある組織のみを対象にする
-- 各社バラバラの相手にする（重複させない）
-- 問い合わせフォームのURLは、その組織の公式サイトのトップページまたは「お問い合わせ」ページのURLとする（実在しそうな一般的なURLでよい。確信が持てない場合はトップページURLにする）
+Web検索ツールを使って、フリーランス支援に関わる実在の団体・エージェンシー・士業事務所を探し、
+その中から「公開の問い合わせメールアドレスが見当たらず、Webサイト上に問い合わせフォームがある」組織を最大10件見つけよ。
 
-各社への送信文（フォームに入力する想定の件名・本文）を作成せよ。
+厳守事項：
+- 必ずWeb検索で実際にヒットしたページのURLのみを使うこと。URLを推測・創作してはならない。
+- 検索で実在を確認できなかった組織は候補に含めない。確信が持てなければスキップする。
+- 各社バラバラの相手にする（重複させない）。
+
+見つかった組織ごとに、フォームへ入力する想定の件名・本文を作成せよ。
 - 本文は200字以内、フリーランス支援の文脈で自然に紹介。押しつけがましくしない。
 - 署名: ワークシールド営業部 / https://freelance-contract-checker.vercel.app
 
-各件を以下の形式で厳密に出力（{CANDIDATES}件分くり返す）：
+最終回答は、検索で確認できた組織についてのみ、以下の形式で厳密に出力せよ（該当件数分くり返す。前置きや説明文は一切不要）：
 ===
 ORG: 組織名
-URL: https://example.com/contact
+URL: https://実際に検索で見つけたURL
 SUBJECT: 件名（40字以内）
 BODY:
 本文（複数行可）
@@ -82,7 +84,8 @@ END
 
 payload = json.dumps({
   "model": "claude-opus-4-8",
-  "max_tokens": 3500,
+  "max_tokens": 4000,
+  "tools": [{"type": "web_search_20250305", "name": "web_search", "max_uses": 10}],
   "messages": [{"role": "user", "content": prompt}]
 }).encode()
 req = urllib.request.Request(
@@ -90,7 +93,11 @@ req = urllib.request.Request(
   headers={"x-api-key": os.environ["ANTHROPIC_API_KEY"], "anthropic-version": "2023-06-01", "content-type": "application/json"},
 )
 res = json.loads(_urlopen_with_retry(req).read())
-output = res["content"][0]["text"]
+
+# web_search使用時はcontentに複数ブロック（tool_use/tool_result/text）が混在するため、text型のみ連結
+output = "".join(
+    block.get("text", "") for block in res.get("content", []) if block.get("type") == "text"
+)
 
 # --- パース ---
 def parse_blocks(text):
@@ -113,7 +120,7 @@ def parse_blocks(text):
     if cur.get("url") and "body" in cur and cur not in blocks: blocks.append(cur)
     return blocks
 
-print("===RAW OUTPUT START==="); print(output[:3000]); print("===RAW OUTPUT END===")
+print("===RAW OUTPUT START===");print(output[:3500]);print("===RAW OUTPUT END===")
 targets = parse_blocks(output)
 
 # --- 上限までキュー投入（送信は絶対に行わない。人間がダッシュボードで最終送信する）---
@@ -127,6 +134,8 @@ for t in targets:
     body = (t.get("body") or "").strip()
     if not (org and url and subject and body):
         continue
+    if not url.startswith("http"):
+        continue
     if queue_lead(org, url, subject, body):
         queued.append(f"{org} ({url})")
         print(f"[キュー投入] {org} / {url}")
@@ -134,7 +143,7 @@ for t in targets:
 print(f"\n本日この実行でのキュー投入: {len(queued)}件 / 上限{DAILY_CAP}件")
 for q in queued: print(" -", q)
 if not queued:
-    print("（新規ターゲットなし、または全て既存キューと重複）")
+    print("（Web検索で条件に合う実在組織が見つからなかった、または全て既存キューと重複）")
 print("\n※ 実際の送信は行っていません。ダッシュボードで内容を確認し、手動でフォーム送信してください。")
 PYEOF
 )
