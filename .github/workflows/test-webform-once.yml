@@ -1,0 +1,16 @@
+name: TEST webform once
+on: workflow_dispatch
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          AGENT_SUPABASE_URL: ${{ secrets.AGENT_SUPABASE_URL }}
+          AGENT_SUPABASE_ANON_KEY: ${{ secrets.AGENT_SUPABASE_ANON_KEY }}
+          AGENT_LOG_TOKEN: ${{ secrets.AGENT_LOG_TOKEN }}
+        run: |
+          # sales_webform.sh のPythonブロックだけを曜日チェック抜きで直接実行
+          sed -n "/<< 'PYEOF'/,/^PYEOF\$/p" scripts/agents/sales_webform.sh | sed '1d;$d' > /tmp/run.py
+          python3 /tmp/run.py
