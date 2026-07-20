@@ -9,6 +9,14 @@ if [ "$JST_DOW" -ge 6 ]; then
   exit 0
 fi
 
+# 1日1回だけ実行（JST 10時）。手動実行時は常に実行。
+JST_HOUR=$(TZ=Asia/Tokyo date '+%H')
+if [ "$JST_HOUR" != "10" ] && [ "${GITHUB_EVENT_NAME:-}" != "workflow_dispatch" ]; then
+  echo "本日の実行済み枠外のためスキップ (JST ${JST_HOUR}時、稼働は10時)"
+  echo "report=skipped (once-daily)" >> $GITHUB_OUTPUT
+  exit 0
+fi
+
 RESPONSE=$(python3 << 'PYEOF'
 import json, urllib.request, os, smtplib
 

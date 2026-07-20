@@ -1,6 +1,14 @@
 #!/bin/bash
 set -e
 
+# 1日1回だけ実行（JST 15時）。手動実行(workflow_dispatch)時は常に実行してAPIコストを節約しつつ動作確認できるようにする。
+JST_HOUR=$(TZ=Asia/Tokyo date '+%H')
+if [ "$JST_HOUR" != "15" ] && [ "${GITHUB_EVENT_NAME:-}" != "workflow_dispatch" ]; then
+  echo "本日の実行済み枠外のためスキップ (JST ${JST_HOUR}時、稼働は15時)"
+  echo "report=skipped (once-daily)" >> $GITHUB_OUTPUT
+  exit 0
+fi
+
 RESPONSE=$(python3 << 'PYEOF'
 import json, urllib.request, os
 

@@ -9,6 +9,14 @@ if [ "$JST_DOW" -ge 6 ]; then
   exit 0
 fi
 
+# 1日1回だけ実行（JST 11時）。手動実行時は常に実行。
+JST_HOUR=$(TZ=Asia/Tokyo date '+%H')
+if [ "$JST_HOUR" != "11" ] && [ "${GITHUB_EVENT_NAME:-}" != "workflow_dispatch" ]; then
+  echo "本日の実行済み枠外のためスキップ (JST ${JST_HOUR}時、稼働は11時)"
+  echo "report=skipped (once-daily)" >> $GITHUB_OUTPUT
+  exit 0
+fi
+
 RESPONSE=$(python3 << 'PYEOF'
 import json, urllib.request, os
 
@@ -120,7 +128,6 @@ def parse_blocks(text):
     if cur.get("url") and "body" in cur and cur not in blocks: blocks.append(cur)
     return blocks
 
-print("===RAW OUTPUT START===");print(output[:3500]);print("===RAW OUTPUT END===")
 targets = parse_blocks(output)
 
 # --- 上限までキュー投入（送信は絶対に行わない。人間がダッシュボードで最終送信する）---
