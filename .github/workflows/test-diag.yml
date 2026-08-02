@@ -1,0 +1,28 @@
+name: TEST diag 400
+on: workflow_dispatch
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python3 - << 'PY'
+import json, urllib.request, urllib.error, os
+payload = json.dumps({
+  "model": "claude-opus-4-8",
+  "max_tokens": 100,
+  "messages": [{"role": "user", "content": "hi"}]
+}).encode()
+req = urllib.request.Request(
+  "https://api.anthropic.com/v1/messages", data=payload,
+  headers={"x-api-key": os.environ["ANTHROPIC_API_KEY"], "anthropic-version": "2023-06-01", "content-type": "application/json"},
+)
+try:
+    res = urllib.request.urlopen(req, timeout=30)
+    print("SUCCESS:", res.read()[:500])
+except urllib.error.HTTPError as e:
+    print("HTTP ERROR", e.code)
+    print(e.read().decode())
+PY
