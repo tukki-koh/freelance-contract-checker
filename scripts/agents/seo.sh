@@ -53,7 +53,7 @@ prompt = f\"\"\"あなたはfreelance-contract-checkerのSEO・GEOスペシャ�
 フォーマット: 各セクションを【1】【2】【3】で区切って出力\"\"\"
 
 payload = json.dumps({
-  'model': 'claude-sonnet-4-8',
+  'model': 'claude-sonnet-5',
   'max_tokens': 1500,
   'messages': [{'role': 'user', 'content': prompt}]
 }).encode()

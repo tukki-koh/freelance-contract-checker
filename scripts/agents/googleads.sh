@@ -64,7 +64,7 @@ prompt = f"""あなたはfreelance-contract-checkerのGoogle広告 最適化担�
 出力は簡潔に。各セクション【1】〜【5】で区切り、実行可能な具体策のみ。抽象論は不要。"""
 
 payload = json.dumps({
-  "model": "claude-sonnet-4-8", "max_tokens": 1500,
+  "model": "claude-sonnet-5", "max_tokens": 1500,
   "messages": [{"role": "user", "content": prompt}]
 }).encode()
 req = urllib.request.Request(

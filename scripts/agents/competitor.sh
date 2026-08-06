@@ -49,7 +49,7 @@ prompt = f"""あなたはfreelance-contract-checkerの競合リサーチャー�
 200〜350字、要点のみ。【1】【2】【3】で区切る。推測を断定で書かず、確度が低い点は「推定」と明示。"""
 
 payload = json.dumps({
-  "model": "claude-sonnet-4-8", "max_tokens": 1000,
+  "model": "claude-sonnet-5", "max_tokens": 1000,
   "messages": [{"role": "user", "content": prompt}]
 }).encode()
 req = urllib.request.Request(

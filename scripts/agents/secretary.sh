@@ -71,7 +71,7 @@ Google広告最適化: {googleads}
 - 余計な挨拶・前置き・締めの言葉は不要'''
 
 payload = json.dumps({
-  'model': 'claude-sonnet-4-8',
+  'model': 'claude-sonnet-5',
   'max_tokens': 600,
   'messages': [{'role': 'user', 'content': prompt}]
 }).encode()

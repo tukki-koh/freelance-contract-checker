@@ -41,7 +41,7 @@ prompt = f\"\"\"あなたはfreelance-contract-checkerのCEOです。
 300字以内で出力\"\"\"
 
 payload = json.dumps({
-  'model': 'claude-sonnet-4-8',
+  'model': 'claude-sonnet-5',
   'max_tokens': 800,
   'messages': [{'role': 'user', 'content': prompt}]
 }).encode()

@@ -50,7 +50,7 @@ prompt = f"""あなたはfreelance-contract-checkerのプロダクトマネー�
 200〜400字程度、要点のみ。フォーマットは【1】【2】【3】で区切る。"""
 
 payload = json.dumps({
-  "model": "claude-sonnet-4-8", "max_tokens": 1200,
+  "model": "claude-sonnet-5", "max_tokens": 1200,
   "messages": [{"role": "user", "content": prompt}]
 }).encode()
 req = urllib.request.Request(
