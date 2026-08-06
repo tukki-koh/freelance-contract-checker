@@ -93,7 +93,7 @@ END
 """
 
 payload = json.dumps({
-  "model": "claude-opus-4-8",
+  "model": "claude-sonnet-4-8",
   "max_tokens": 3000,
   "messages": [{"role": "user", "content": prompt}]
 }).encode()

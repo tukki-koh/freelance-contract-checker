@@ -140,7 +140,7 @@ prompt = f"""あなたはfreelance-contract-checkerのデータアナリスト�
 api_req = urllib.request.Request(
     "https://api.anthropic.com/v1/messages",
     data=json.dumps({
-        "model": "claude-opus-4-8",
+        "model": "claude-sonnet-4-8",
         "max_tokens": 1500,
         "messages": [{"role": "user", "content": prompt}]
     }).encode(),

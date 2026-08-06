@@ -91,7 +91,7 @@ END
 """
 
 payload = json.dumps({
-  "model": "claude-opus-4-8",
+  "model": "claude-sonnet-4-8",
   "max_tokens": 4000,
   "tools": [{"type": "web_search_20250305", "name": "web_search", "max_uses": 10}],
   "messages": [{"role": "user", "content": prompt}]

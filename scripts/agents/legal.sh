@@ -38,7 +38,7 @@ prompt = \"\"\"あなたはfreelance-contract-checkerの法務アドバイザー
 3. 200字以内で報告\"\"\"
 
 payload = json.dumps({
-  'model': 'claude-opus-4-8',
+  'model': 'claude-sonnet-4-8',
   'max_tokens': 600,
   'messages': [{'role': 'user', 'content': prompt}]
 }).encode()
