@@ -151,7 +151,8 @@ api_req = urllib.request.Request(
     }
 )
 res = json.loads(_urlopen_with_retry(api_req).read(), strict=False)
-print(res["content"][0]["text"])
+_text_blocks = [b.get("text","") for b in res.get("content",[]) if b.get("type") == "text"]
+print("".join(_text_blocks))
 PYEOF
 )
 

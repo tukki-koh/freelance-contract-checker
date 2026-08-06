@@ -102,7 +102,8 @@ req = urllib.request.Request(
   headers={"x-api-key": os.environ["ANTHROPIC_API_KEY"], "anthropic-version": "2023-06-01", "content-type": "application/json"},
 )
 res = json.loads(_urlopen_with_retry(req).read())
-output = res["content"][0]["text"]
+_text_blocks = [b.get("text","") for b in res.get("content",[]) if b.get("type") == "text"]
+output = "".join(_text_blocks)
 
 # --- パース ---
 def parse_blocks(text):
