@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import {
   Shield, CheckCircle, AlertTriangle, ArrowRight,
   Building2, User, Clock, ChevronDown, Star, FileSearch
@@ -129,8 +130,21 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* 右：診断結果モックアップ（製品を見せる） */}
+            {/* 右：実写真＋診断結果モックアップ（製品を見せる） */}
             <div className="animate-float-up lg:pl-4" style={{ animationDelay: '0.12s' }}>
+              {/* 実際に使っている人の写真 */}
+              <div className="relative mb-5 rounded-2xl overflow-hidden shadow-xl shadow-slate-300/40 border border-slate-200">
+                <Image
+                  src="/images/lp-hero.webp"
+                  alt="自宅の仕事机でノートパソコンを使い、契約書を確認しているフリーランス"
+                  width={1200}
+                  height={655}
+                  priority
+                  className="w-full h-auto object-cover"
+                  sizes="(max-width: 1024px) 100vw, 560px"
+                />
+              </div>
+
               <div className="relative">
                 {/* 背面の装飾カード */}
                 <div className="absolute -inset-3 bg-gradient-to-tr from-blue-600/10 to-indigo-600/10 rounded-[26px] blur-xl" />
@@ -229,14 +243,27 @@ export default function LandingPage() {
             共感セクション
         ================================================================ */}
         <section className="max-w-6xl mx-auto px-6 py-20">
-          <div className="max-w-2xl mb-10">
-            <span className="text-xs font-semibold text-blue-600 tracking-wide uppercase">Problem</span>
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mt-2">
-              こんな条項、見落としていませんか？
-            </h2>
-            <p className="text-slate-500 mt-3">
-              法律の条文を全部読んで契約書と照合するのは、現実的ではありません。だから、気づかないうちに不利な条項にサインしてしまう。
-            </p>
+          <div className="grid lg:grid-cols-2 gap-10 items-center mb-12">
+            <div className="rounded-2xl overflow-hidden shadow-lg shadow-slate-300/40 border border-slate-200 order-2 lg:order-1">
+              <Image
+                src="/images/lp-contract.webp"
+                alt="机の上で業務委託契約書に目を通しているところ"
+                width={1000}
+                height={545}
+                loading="lazy"
+                className="w-full h-auto object-cover"
+                sizes="(max-width: 1024px) 100vw, 520px"
+              />
+            </div>
+            <div className="order-1 lg:order-2">
+              <span className="text-xs font-semibold text-blue-600 tracking-wide uppercase">Problem</span>
+              <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mt-2">
+                こんな条項、見落としていませんか？
+              </h2>
+              <p className="text-slate-500 mt-3 leading-relaxed">
+                法律の条文を全部読んで契約書と照合するのは、現実的ではありません。だから、気づかないうちに不利な条項にサインしてしまう。
+              </p>
+            </div>
           </div>
 
           <div className="grid md:grid-cols-3 gap-5">
@@ -346,18 +373,18 @@ export default function LandingPage() {
             <div className="grid md:grid-cols-3 gap-6">
               {[
                 {
-                  name: '田中さん', role: 'Webデザイナー・フリーランス歴3年', initial: '田',
+                  name: '田中さん', role: 'Webデザイナー・フリーランス歴3年', photo: '/images/face1.webp',
                   text: '「支払いは納品確認後120日以内」という条項を見落としていました。指摘してもらって初めて気づき、交渉して60日に修正。数百円でこれは安すぎます。',
                 },
                 {
-                  name: '山田さん', role: 'エンジニア・副業フリーランス', initial: '山',
+                  name: '山田さん', role: 'エンジニア・副業フリーランス', photo: '/images/face2.webp',
                   text: '初めての業務委託で何を見ればいいかわからなかった。「即日解約可能」が違反だと教えてもらえて、30日前予告の文言にちゃんと直せました。',
                 },
                 {
-                  name: '鈴木さん', role: 'ライター・フリーランス歴10年', initial: '鈴',
+                  name: '鈴木さん', role: 'ライター・フリーランス歴10年', photo: '/images/face3.webp',
                   text: '10年やってても見落とすんだな、と。ベテランほど「これくらい普通」と流してしまうので、契約のたびに使っています。',
                 },
-              ].map(({ name, role, initial, text }) => (
+              ].map(({ name, role, photo, text }) => (
                 <div key={name} className="flex flex-col rounded-2xl border border-slate-200 bg-slate-50/50 p-6 shadow-sm">
                   <div className="flex items-center gap-1 mb-4">
                     {Array.from({ length: 5 }).map((_, i) => (
@@ -366,9 +393,15 @@ export default function LandingPage() {
                   </div>
                   <p className="text-sm text-slate-700 leading-relaxed flex-1 mb-5">{text}</p>
                   <div className="flex items-center gap-3 pt-4 border-t border-slate-200">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-sm font-bold">
-                      {initial}
-                    </div>
+                    <Image
+                      src={photo}
+                      alt={`${name}の写真`}
+                      width={300}
+                      height={300}
+                      loading="lazy"
+                      className="h-11 w-11 rounded-full object-cover border border-slate-200"
+                      sizes="44px"
+                    />
                     <div className="leading-tight">
                       <p className="text-sm font-semibold text-slate-900">{name}</p>
                       <p className="text-xs text-slate-400">{role}</p>
@@ -521,6 +554,17 @@ export default function LandingPage() {
         ================================================================ */}
         <section className="max-w-6xl mx-auto px-6 py-20">
           <div className="rounded-3xl bg-slate-900 text-white p-10 md:p-14 relative overflow-hidden">
+            {/* 背景写真（暗く敷いて可読性を確保） */}
+            <Image
+              src="/images/lp-security.webp"
+              alt=""
+              aria-hidden="true"
+              width={1400}
+              height={764}
+              loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover opacity-25"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-900/60 pointer-events-none" />
             <div className="absolute inset-0 aurora opacity-40 pointer-events-none" />
             <div className="relative max-w-2xl">
               <span className="text-xs font-semibold text-blue-300 tracking-wide uppercase">Security & Trust</span>
@@ -598,6 +642,17 @@ export default function LandingPage() {
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 hero-grid opacity-50 pointer-events-none" />
           <div className="relative max-w-2xl mx-auto px-6 py-24 text-center">
+            <div className="rounded-2xl overflow-hidden shadow-lg shadow-slate-300/40 border border-slate-200 mb-8">
+              <Image
+                src="/images/lp-cta.webp"
+                alt="カフェでスマートフォンから契約書を診断しているフリーランス"
+                width={1200}
+                height={655}
+                loading="lazy"
+                className="w-full h-auto object-cover"
+                sizes="(max-width: 768px) 100vw, 672px"
+              />
+            </div>
             <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 mb-6 shadow-sm">
               <div className="flex items-center gap-0.5">
                 {Array.from({ length: 5 }).map((_, i) => (
