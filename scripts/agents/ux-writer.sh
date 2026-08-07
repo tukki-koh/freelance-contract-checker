@@ -54,8 +54,8 @@ req = urllib.request.Request(
   }
 )
 res = json.loads(_urlopen_with_retry(req).read())
-_text_blocks = [b.get("text","") for b in res.get("content",[]) if b.get("type") == "text"]
-print("".join(_text_blocks))
+_text_blocks = [b.get(\"text\",\"\") for b in res.get(\"content\",[]) if b.get(\"type\") == \"text\"]
+print(\"\".join(_text_blocks))
 ")
 
 echo "report<<EOF" >> $GITHUB_OUTPUT
