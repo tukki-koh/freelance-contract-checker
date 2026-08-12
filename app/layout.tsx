@@ -71,13 +71,6 @@ const webApplicationSchema = {
       description: '月間診断数無制限。発注側コンプライアンスチェック対応。汎用AIツールの約1/3の価格。',
     },
   ],
-  aggregateRating: {
-    '@type': 'AggregateRating',
-    ratingValue: '4.8',
-    reviewCount: '47',
-    bestRating: '5',
-    worstRating: '1',
-  },
   creator: {
     '@type': 'Organization',
     name: 'ワークシールド',

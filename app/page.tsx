@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import {
   Shield, CheckCircle, AlertTriangle, ArrowRight,
-  Building2, User, Clock, ChevronDown, Star, FileSearch
+  Building2, User, Clock, ChevronDown, FileSearch
 } from 'lucide-react'
 import { StickyCtaBar } from '@/components/StickyCtaBar'
 
@@ -75,15 +75,11 @@ export default function LandingPage() {
 
             {/* 左：コピー */}
             <div className="animate-float-up">
-              {/* 評価バッジ */}
+              {/* 対応法令バッジ */}
               <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 backdrop-blur px-3 py-1.5 mb-6 shadow-sm">
-                <div className="flex items-center gap-0.5">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                  ))}
-                </div>
-                <span className="text-xs font-medium text-slate-600">4.8</span>
-                <span className="text-xs text-slate-400">/ 全国のフリーランスに利用されています</span>
+                <Shield className="h-3.5 w-3.5 text-blue-600" />
+                <span className="text-xs font-medium text-slate-700">フリーランス新法・下請法に対応</span>
+                <span className="text-xs text-slate-400">/ 条文番号つきで指摘</span>
               </div>
 
               <h1 className="text-4xl md:text-5xl lg:text-[3.4rem] font-extrabold text-slate-900 leading-[1.12] mb-6">
@@ -229,7 +225,7 @@ export default function LandingPage() {
               { v: '30秒', l: '平均診断時間' },
               { v: '¥980', l: '使い放題（月額）' },
               { v: '¥300〜', l: '1回だけのお試し' },
-              { v: '4.8 / 5', l: '利用者の満足度' },
+              { v: '2つの法律', l: 'フリーランス新法・下請法' },
             ].map(({ v, l }) => (
               <div key={l} className="text-center">
                 <p className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">{v}</p>
@@ -386,11 +382,7 @@ export default function LandingPage() {
                 },
               ].map(({ name, role, photo, text }) => (
                 <div key={name} className="flex flex-col rounded-2xl border border-slate-200 bg-slate-50/50 p-6 shadow-sm">
-                  <div className="flex items-center gap-1 mb-4">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
-                    ))}
-                  </div>
+                  <span className="text-3xl leading-none text-slate-300 font-serif mb-2" aria-hidden="true">&ldquo;</span>
                   <p className="text-sm text-slate-700 leading-relaxed flex-1 mb-5">{text}</p>
                   <div className="flex items-center gap-3 pt-4 border-t border-slate-200">
                     <Image
@@ -654,12 +646,8 @@ export default function LandingPage() {
               />
             </div>
             <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 mb-6 shadow-sm">
-              <div className="flex items-center gap-0.5">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                ))}
-              </div>
-              <span className="text-xs text-slate-500">多くのフリーランスが利用しています</span>
+              <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
+              <span className="text-xs text-slate-500">無料登録・クレジットカード不要</span>
             </div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4 leading-tight">
               まず1回、<br className="sm:hidden" />試してみてください。
