@@ -9,13 +9,19 @@ if [ "$JST_DOW" -ge 6 ]; then
   exit 0
 fi
 
-# 1日1回だけ実行（JST 11時）。手動実行時は常に実行。
+# JST 10〜13時の枠で実行（cron遅延で11時ちょうどに起動できない日があるため幅を持たせる）。
+# 重複防止・1日上限はDB側(contact_urlのunique制約と下記の本日件数チェック)で担保。
 JST_HOUR=$(TZ=Asia/Tokyo date '+%H')
-if [ "$JST_HOUR" != "11" ] && [ "${GITHUB_EVENT_NAME:-}" != "workflow_dispatch" ]; then
-  echo "本日の実行済み枠外のためスキップ (JST ${JST_HOUR}時、稼働は11時)"
-  echo "report=skipped (once-daily)" >> $GITHUB_OUTPUT
-  exit 0
-fi
+case "$JST_HOUR" in
+  10|11|12|13) : ;;
+  *)
+    if [ "${GITHUB_EVENT_NAME:-}" != "workflow_dispatch" ]; then
+      echo "本日の実行枠外のためスキップ (JST ${JST_HOUR}時、稼働枠は10〜13時)"
+      echo "report=skipped (out of window)" >> $GITHUB_OUTPUT
+      exit 0
+    fi
+    ;;
+esac
 
 RESPONSE=$(python3 << 'PYEOF'
 import json, urllib.request, os
@@ -43,6 +49,29 @@ SUPA_ANON = os.environ.get("AGENT_SUPABASE_ANON_KEY", "")
 LOG_TOKEN = os.environ.get("AGENT_LOG_TOKEN", "")
 DAILY_CAP = 10          # 1日にキューへ積む上限（平日）。送信自体は行わない
 today = date.today()
+
+# --- 本日すでに上限到達なら、Claude APIを呼ぶ前に終了（重複起動時のコスト削減）---
+def queued_today_count():
+    if not (SUPA_URL and SUPA_ANON):
+        return 0
+    import urllib.parse
+    from datetime import datetime, timezone, timedelta
+    JST = timezone(timedelta(hours=9))
+    since = datetime.now(JST).replace(hour=0, minute=0, second=0, microsecond=0)
+    q = urllib.parse.quote(since.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S"))
+    req = urllib.request.Request(
+        f"{SUPA_URL}/rest/v1/webform_leads?select=id&created_at=gte.{q}",
+        headers={"apikey": SUPA_ANON, "Authorization": f"Bearer {SUPA_ANON}"})
+    try:
+        return len(json.loads(urllib.request.urlopen(req, timeout=10).read()))
+    except Exception as e:
+        print(f"[本日件数の取得失敗（続行）] {e}")
+        return 0
+
+_already = queued_today_count()
+if _already >= DAILY_CAP:
+    print(f"本日はすでに上限 {_already}/{DAILY_CAP} 件をキュー投入済みのため終了")
+    raise SystemExit(0)
 
 # --- キュー投入を試みる（重複URLはfalse。送信は一切行わない）---
 def queue_lead(org, url, subject, body):
