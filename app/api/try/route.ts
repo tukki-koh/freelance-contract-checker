@@ -12,7 +12,8 @@ import type { AnalysisResult, TrialResult } from '@/types'
 //   全件の修正案は登録・購入後の本診断で見られる（クライアントで隠すだけだと中身が見えてしまうため、サーバーで削る）
 // ================================================================
 
-export const maxDuration = 60
+// 診断JSON(最大8192トークン)の生成に60秒以上かかるため、Hobbyの上限300秒まで延ばす
+export const maxDuration = 300
 
 const PER_IP_WINDOW_HOURS = 24
 const GLOBAL_DAILY_CAP = 60

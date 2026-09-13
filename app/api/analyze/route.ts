@@ -6,6 +6,9 @@ import { extractTextFromPdf, extractTextFromImage } from '@/lib/pdf-parser'
 import { checkAccess } from '@/lib/stripe'
 import type { UserSubscription } from '@/types'
 
+// 診断JSON(最大8192トークン)の生成に60秒以上かかり、既定の上限ではタイムアウトするため延長する
+export const maxDuration = 300
+
 function getAdminClient() {
   return createAdminClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

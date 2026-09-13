@@ -212,7 +212,7 @@ export function TryPageClient() {
           <div className="rounded-2xl border border-slate-700/60 bg-slate-800/50 p-12 text-center mb-6">
             <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border-2 border-blue-500 border-t-transparent animate-spin mb-4" />
             <p className="text-slate-300 font-medium">AIが契約書を読んでいます…</p>
-            <p className="text-slate-500 text-sm mt-1">30秒〜1分ほどかかります。このままお待ちください</p>
+            <p className="text-slate-500 text-sm mt-1">1〜2分ほどかかります。このままお待ちください</p>
           </div>
         )}
 
