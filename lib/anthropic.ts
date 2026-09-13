@@ -258,28 +258,83 @@ ${contractText}
     })
   }
 
+  // 自由記述のJSONは長くなると引用符のエスケープ漏れ等で壊れ、JSON.parse が失敗していた。
+  // ツール呼び出しを強制し、APIがパース済みのオブジェクトとして返す形にする。
+  const law = { type: 'string', enum: ['freelance_act', 'subcontract_act', 'both'] }
+  const level = { type: 'string', enum: ['low', 'medium', 'high', 'critical'] }
+  const reportTool: Anthropic.Tool = {
+    name: 'report_analysis',
+    description: '契約書の分析結果を報告する。出力フォーマットで指定した全フィールドを埋めること。',
+    input_schema: {
+      type: 'object',
+      properties: {
+        risk_level: level,
+        applicable_laws: { type: 'array', items: { type: 'string', enum: ['freelance_act', 'subcontract_act'] } },
+        summary: { type: 'string' },
+        violations: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              law, article_code: { type: 'string' }, article: { type: 'string' }, article_name: { type: 'string' },
+              severity: level, confidence: { type: 'string', enum: ['high', 'medium', 'low'] },
+              requires_review: { type: 'boolean' }, description: { type: 'string' }, excerpt: { type: 'string' },
+              legal_basis: { type: 'string' }, correction: { type: 'string' },
+            },
+            required: ['law', 'article_code', 'article', 'article_name', 'severity', 'confidence',
+              'requires_review', 'description', 'excerpt', 'legal_basis', 'correction'],
+          },
+        },
+        compliant_points: { type: 'array', items: { type: 'string' } },
+        missing_clauses: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              law, article: { type: 'string' }, article_name: { type: 'string' },
+              description: { type: 'string' }, suggested_clause: { type: 'string' },
+            },
+            required: ['law', 'article', 'article_name', 'description', 'suggested_clause'],
+          },
+        },
+        recommendation: { type: 'string' },
+        disclaimer: { type: 'string' },
+      },
+      required: ['risk_level', 'applicable_laws', 'summary', 'violations', 'compliant_points',
+        'missing_clauses', 'recommendation', 'disclaimer'],
+    },
+  }
+
   const response = await client.messages.create({
     model: 'claude-sonnet-5',
     max_tokens: 8192,
     system: SYSTEM_PROMPT,
+    tools: [reportTool],
+    tool_choice: { type: 'tool', name: 'report_analysis' },
     messages: [{ role: 'user', content: messageContent }],
   })
 
-  // content[0] が text とは限らない（thinking 等のブロックが先に来ることがある）ため、text ブロックだけを連結する
-  const text = response.content
-    .filter((b): b is Anthropic.TextBlock => b.type === 'text')
-    .map(b => b.text)
-    .join('')
-  if (!text) {
-    throw new Error('Claude APIから予期しないレスポンス形式が返されました')
+  const toolUse = response.content.find(
+    (b): b is Anthropic.ToolUseBlock => b.type === 'tool_use' && b.name === 'report_analysis'
+  )
+
+  let result: AnalysisResult
+  if (toolUse && response.stop_reason !== 'max_tokens') {
+    result = toolUse.input as AnalysisResult
+  } else {
+    // フォールバック: text ブロックからJSONを拾う（content[0] が text とは限らないので連結する）
+    const text = response.content
+      .filter((b): b is Anthropic.TextBlock => b.type === 'text')
+      .map(b => b.text)
+      .join('')
+    const jsonMatch = text.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) {
+      throw new Error(`Claude APIから分析結果を取得できませんでした (stop_reason=${response.stop_reason})`)
+    }
+    result = JSON.parse(jsonMatch[0]) as AnalysisResult
   }
 
-  const jsonMatch = text.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) {
-    throw new Error('Claude APIのレスポンスからJSONが見つかりませんでした')
-  }
-
-  const result = JSON.parse(jsonMatch[0]) as AnalysisResult
+  if (!Array.isArray(result.violations)) result.violations = []
 
   // disclaimer が未設定の場合のフォールバック
   if (!result.disclaimer) {
