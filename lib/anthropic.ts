@@ -259,18 +259,22 @@ ${contractText}
   }
 
   const response = await client.messages.create({
-    model: 'claude-sonnet-4-6',
+    model: 'claude-sonnet-5',
     max_tokens: 8192,
     system: SYSTEM_PROMPT,
     messages: [{ role: 'user', content: messageContent }],
   })
 
-  const content = response.content[0]
-  if (content.type !== 'text') {
+  // content[0] が text とは限らない（thinking 等のブロックが先に来ることがある）ため、text ブロックだけを連結する
+  const text = response.content
+    .filter((b): b is Anthropic.TextBlock => b.type === 'text')
+    .map(b => b.text)
+    .join('')
+  if (!text) {
     throw new Error('Claude APIから予期しないレスポンス形式が返されました')
   }
 
-  const jsonMatch = content.text.match(/\{[\s\S]*\}/)
+  const jsonMatch = text.match(/\{[\s\S]*\}/)
   if (!jsonMatch) {
     throw new Error('Claude APIのレスポンスからJSONが見つかりませんでした')
   }

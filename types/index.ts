@@ -37,6 +37,19 @@ export type MissingClause = {
   suggested_clause: string
 }
 
+// 登録不要のお試し診断の結果（1件目の指摘だけ全文、残りは項目名のみ）
+export type TrialResult = {
+  risk_level: RiskLevel
+  applicable_laws: ApplicableLaw[]
+  summary: string
+  violation_count: number
+  missing_count: number
+  first_violation: ViolationItem | null
+  locked_violations: { article: string; article_name: string; severity: RiskLevel }[]
+  locked_missing: { article: string; article_name: string }[]
+  disclaimer: string
+}
+
 export type ContractAnalysis = {
   id: string
   user_id: string

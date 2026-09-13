@@ -23,10 +23,10 @@ export function StickyCtaBar() {
       <div className="flex items-center gap-3">
         <div className="flex-1">
           <p className="text-xs font-bold text-gray-900">まず1回、無料で試してみませんか？</p>
-          <p className="text-xs text-green-600 font-medium">カード不要・30秒で登録完了</p>
+          <p className="text-xs text-green-600 font-medium">登録不要・カード不要</p>
         </div>
         <Link
-          href="/signup"
+          href="/try"
           className="shrink-0 inline-flex items-center gap-1.5 bg-green-500 hover:bg-green-400 active:bg-green-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm transition-colors"
         >
           無料で試す

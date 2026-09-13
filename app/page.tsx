@@ -53,7 +53,7 @@ export default function LandingPage() {
               ログイン
             </Link>
             <Link
-              href="/signup"
+              href="/try"
               className="text-sm bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg transition-colors font-medium shadow-sm"
             >
               無料で試す
@@ -99,7 +99,7 @@ export default function LandingPage() {
 
               <div className="flex flex-col sm:flex-row gap-3 mb-5">
                 <Link
-                  href="/signup"
+                  href="/try"
                   className="group inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-4 rounded-xl font-bold text-base transition-all shadow-lg shadow-blue-600/25"
                 >
                   無料で1回診断してみる
@@ -118,7 +118,7 @@ export default function LandingPage() {
                   <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />クレジットカード不要
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />登録30秒
+                  <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />登録不要
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />SSL暗号化・内容は保存しません
@@ -332,7 +332,7 @@ export default function LandingPage() {
               <p className="text-slate-500 leading-relaxed mb-6">
                 最新のClaude AIが、感覚ではなく条文を根拠に判定します。だから「なぜ問題なのか」が明確にわかり、そのまま交渉材料に使えます。
               </p>
-              <Link href="/signup" className="inline-flex items-center gap-2 text-blue-600 font-medium text-sm hover:gap-3 transition-all">
+              <Link href="/try" className="inline-flex items-center gap-2 text-blue-600 font-medium text-sm hover:gap-3 transition-all">
                 無料で診断してみる <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -483,10 +483,10 @@ export default function LandingPage() {
                 </div>
                 <div className="mb-5"><span className="text-4xl font-extrabold text-slate-900">¥0</span></div>
                 <ul className="space-y-2.5 mb-7 flex-1 text-sm text-slate-600">
-                  <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />登録は無料</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />登録不要</li>
                   <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />1回だけ診断できます</li>
                 </ul>
-                <Link href="/signup" className="block text-center bg-slate-100 hover:bg-slate-200 text-slate-800 py-3 rounded-xl font-medium transition-colors text-sm">
+                <Link href="/try" className="block text-center bg-slate-100 hover:bg-slate-200 text-slate-800 py-3 rounded-xl font-medium transition-colors text-sm">
                   無料で始める
                 </Link>
               </div>
@@ -647,23 +647,23 @@ export default function LandingPage() {
             </div>
             <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 mb-6 shadow-sm">
               <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
-              <span className="text-xs text-slate-500">無料登録・クレジットカード不要</span>
+              <span className="text-xs text-slate-500">登録不要・クレジットカード不要</span>
             </div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4 leading-tight">
               まず1回、<br className="sm:hidden" />試してみてください。
             </h2>
             <p className="text-slate-500 mb-8 leading-relaxed">
-              無料登録で1回だけ診断できます。クレジットカードの登録は不要。
+              登録なしで、1回だけ無料で診断できます。クレジットカードも不要です。
               気に入ったら、300円の単発か、月980円の使い放題を選んでいただければ大丈夫です。
             </p>
             <Link
-              href="/signup"
+              href="/try"
               className="group inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-10 py-4 rounded-xl font-bold text-base transition-all shadow-xl shadow-blue-600/25"
             >
               無料で試してみる
               <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
-            <p className="text-xs text-slate-400 mt-4">登録は30秒で完了します</p>
+            <p className="text-xs text-slate-400 mt-4">その場で結果が表示されます</p>
           </div>
         </section>
       </main>
