@@ -3,6 +3,8 @@ import Script from 'next/script'
 import './globals.css'
 
 export const metadata: Metadata = {
+  // Google Search Console の所有権確認（HTMLタグ方式）
+  verification: { google: 'yRI78JJGL2gw663JYPdPRHUFfWEef4FQLNvZOC8x18k' },
   title: '契約書チェッカー｜フリーランス新法・下請法 違反を30秒でAI診断 300円〜',
   description: 'フリーランス新法・下請法に違反した契約条項をAIが30秒で発見。条文番号付きで違反箇所を指摘し修正案まで提示。1回300円、月980円で使い放題。汎用AIツールの約1/3の価格。登録不要で1回無料お試し可能。',
   keywords: ['フリーランス新法', '契約書チェック', '下請法', '業務委託契約', '違反条項', '契約書診断', 'AI', '契約書チェッカー', 'フリーランス契約'],
