@@ -1,27 +1,13 @@
 #!/bin/bash
 set -e
 
-# 平日のみ実行（JST）
-JST_DOW=$(TZ=Asia/Tokyo date '+%u')  # 1=月, 7=日
-if [ "$JST_DOW" -ge 6 ]; then
-  echo "週末のためスキップ (DOW=$JST_DOW)"
-  echo "report=skipped (weekend)" >> $GITHUB_OUTPUT
+# 稼働時刻（JST 9時）以降の最初の起動で、本日まだ実稼働していなければ実行（手動実行は常に実行）
+source "$(dirname "$0")/lib_gate.sh"
+if ! daily_gate sales 9 1; then
+  echo "$GATE_REASON"
+  echo "report=skipped (once-daily)" >> $GITHUB_OUTPUT
   exit 0
 fi
-
-# JST 9〜12時の枠で実行（cron遅延で10時ちょうどに起動できない日があるため幅を持たせる）。
-# 実際の重複防止・1日上限はDB側(claim_sales_email)で原子的に担保しているので多重起動しても安全。
-JST_HOUR=$(TZ=Asia/Tokyo date '+%H')
-case "$JST_HOUR" in
-  09|10|11|12) : ;;
-  *)
-    if [ "${GITHUB_EVENT_NAME:-}" != "workflow_dispatch" ]; then
-      echo "本日の実行枠外のためスキップ (JST ${JST_HOUR}時、稼働枠は9〜12時)"
-      echo "report=skipped (out of window)" >> $GITHUB_OUTPUT
-      exit 0
-    fi
-    ;;
-esac
 
 pip install --quiet --disable-pip-version-check dnspython >/dev/null 2>&1 || true
 

@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 
-# 1日1回だけ実行（JST 11時）。手動実行(workflow_dispatch)時は常に実行してAPIコストを節約しつつ動作確認できるようにする。
-JST_HOUR=$(TZ=Asia/Tokyo date '+%H')
-if [ "$JST_HOUR" != "11" ] && [ "${GITHUB_EVENT_NAME:-}" != "workflow_dispatch" ]; then
-  echo "本日の実行済み枠外のためスキップ (JST ${JST_HOUR}時、稼働は11時)"
+# 稼働時刻（JST 11時）以降の最初の起動で、本日まだ実稼働していなければ実行（手動実行は常に実行）
+source "$(dirname "$0")/lib_gate.sh"
+if ! daily_gate ux 11; then
+  echo "$GATE_REASON"
   echo "report=skipped (once-daily)" >> $GITHUB_OUTPUT
   exit 0
 fi

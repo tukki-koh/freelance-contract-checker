@@ -1,11 +1,11 @@
 #!/bin/bash
 set -e
 
-# JST時間確認（UTC+9）、5時以外はSlack送信スキップ
-JST_HOUR=$(TZ=Asia/Tokyo date '+%H')
-if [ "$JST_HOUR" != "05" ] && [ "${FORCE_REPORT:-}" != "true" ]; then
-  echo "Slack report skipped (JST $JST_HOUR:00, runs only at 05:00)"
-  echo "report=skipped" >> $GITHUB_OUTPUT
+# 稼働時刻（JST 5時）以降の最初の起動で、本日まだ実稼働していなければ実行（手動実行は常に実行）
+source "$(dirname "$0")/lib_gate.sh"
+if ! daily_gate secretary 5; then
+  echo "$GATE_REASON"
+  echo "report=skipped (once-daily)" >> $GITHUB_OUTPUT
   exit 0
 fi
 
