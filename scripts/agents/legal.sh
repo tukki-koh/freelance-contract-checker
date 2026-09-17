@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 
-# 稼働時刻（JST 14時）以降の最初の起動で、本日まだ実稼働していなければ実行（手動実行は常に実行）
+# 毎週水曜 JST 14時以降の最初の起動で実行（法改正の確認は週1回で十分なため。手動実行は常に実行）
 source "$(dirname "$0")/lib_gate.sh"
-if ! daily_gate legal 14; then
+if ! daily_gate legal 14 0 3; then
   echo "$GATE_REASON"
   echo "report=skipped (once-daily)" >> $GITHUB_OUTPUT
   exit 0

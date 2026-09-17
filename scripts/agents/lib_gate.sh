@@ -7,11 +7,13 @@
 #   「稼働時刻以降の最初の起動で、本日まだ実稼働していなければ実行する」
 # に変更する。本日の実稼働の有無は Supabase agent_events（スキップ以外の done / error）で判定する。
 #
-# 使い方: daily_gate <agent_key> <稼働開始時(JST)> [平日のみ=1]
+# 使い方: daily_gate <agent_key> <稼働開始時(JST)> [平日のみ=1] [曜日指定 1=月〜7=日]
+#   例) daily_gate sales 9 1       … 平日の9時以降に1日1回
+#       daily_gate legal 14 0 3    … 毎週水曜の14時以降に1回
 #   戻り値 0 = 実行する / 1 = スキップ（理由は $GATE_REASON。必ず「スキップ」を含める：
 #   ダッシュボードと本判定が message の「スキップ」で実稼働かどうかを見分けているため）
 daily_gate() {
-  local key="$1" start="$2" weekday_only="${3:-0}"
+  local key="$1" start="$2" weekday_only="${3:-0}" only_dow="${4:-}"
   GATE_REASON=""
   if [ "${GITHUB_EVENT_NAME:-}" = "workflow_dispatch" ] || [ "${FORCE_REPORT:-}" = "true" ]; then
     return 0
@@ -22,6 +24,10 @@ daily_gate() {
   hour=$((10#$(TZ=Asia/Tokyo date '+%H')))
   if [ "$weekday_only" = "1" ] && [ "$dow" -ge 6 ]; then
     GATE_REASON="週末のためスキップ (DOW=$dow)"
+    return 1
+  fi
+  if [ -n "$only_dow" ] && [ "$dow" != "$only_dow" ]; then
+    GATE_REASON="担当曜日ではないためスキップ (DOW=$dow、担当は$only_dow)"
     return 1
   fi
   if [ "$hour" -lt "$start" ]; then
