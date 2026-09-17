@@ -52,7 +52,8 @@ prompt = f\"\"\"あなたはfreelance-contract-checkerのマーケティング�
 
 payload = json.dumps({
   'model': 'claude-sonnet-5',
-  'max_tokens': 4000,
+  'max_tokens': 16000,
+  'output_config': {'effort': 'medium'},
   'messages': [{'role': 'user', 'content': prompt}]
 }).encode()
 

@@ -111,7 +111,7 @@ prompt = f"""あなたはフリーランス向け契約書AI診断サービス�
 3. 今週やること3つ（担当＝オーナー or AI社員を明記。具体的で、1週間で終わるもの）
 4. やめるべきこと（あれば1つ）"""
 
-payload = json.dumps({"model": "claude-sonnet-5", "max_tokens": 4000,
+payload = json.dumps({"model": "claude-sonnet-5", "max_tokens": 16000, "output_config": {"effort": "medium"},
                       "messages": [{"role": "user", "content": prompt}]}).encode()
 res = json.loads(_urlopen_with_retry(urllib.request.Request(
     "https://api.anthropic.com/v1/messages", data=payload,

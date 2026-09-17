@@ -77,7 +77,8 @@ prompt = f"""あなたは専属秘書です。以下は過去24時間に各部�
 
 payload = json.dumps({
     "model": "claude-sonnet-5",
-    "max_tokens": 4000,
+    "max_tokens": 16000,
+    "output_config": {"effort": "low"},
     "messages": [{"role": "user", "content": prompt}],
 }).encode()
 req = urllib.request.Request(

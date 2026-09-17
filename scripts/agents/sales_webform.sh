@@ -107,7 +107,7 @@ END
 
 payload = json.dumps({
   "model": "claude-sonnet-5",
-  "max_tokens": 4000,
+  "max_tokens": 16000,
   "tools": [{"type": "web_search_20250305", "name": "web_search", "max_uses": 10}],
   "messages": [{"role": "user", "content": prompt}]
 }).encode()
