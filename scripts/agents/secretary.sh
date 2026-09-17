@@ -9,8 +9,12 @@ if ! daily_gate secretary 5; then
   exit 0
 fi
 
-SUMMARY=$(python3 -c "
-import json, urllib.request, os
+# 各部門の報告は「同じワークフロー実行の出力」ではなく、Supabase の稼働ログ（過去24時間の実稼働）から集める。
+# 社員は1日1回・各自の時刻にしか実作業しないため、秘書が動く朝の実行では他部門はすべてスキップしており、
+# 以前は毎日「活動報告なし」になっていた。
+SUMMARY=$(python3 << 'PYEOF'
+import json, os, urllib.parse, urllib.request
+from datetime import datetime, timedelta, timezone
 
 def _urlopen_with_retry(req, tries=4, base_delay=3):
     import time, urllib.error
@@ -28,98 +32,71 @@ def _urlopen_with_retry(req, tries=4, base_delay=3):
                 continue
             raise
 
-engineer = os.environ.get('ENGINEER_REPORT', '報告なし')
-marketing = os.environ.get('MARKETING_REPORT', '報告なし')
-sales = os.environ.get('SALES_REPORT', '報告なし')
-sales_webform = os.environ.get('SALES_WEBFORM_REPORT', '報告なし')
-ceo = os.environ.get('CEO_REPORT', '報告なし')
-legal = os.environ.get('LEGAL_REPORT', '報告なし')
-ux = os.environ.get('UX_REPORT', '報告なし')
-seo = os.environ.get('SEO_REPORT', '報告なし')
-cs = os.environ.get('CS_REPORT', '報告なし')
-analyst = os.environ.get('ANALYST_REPORT', '報告なし')
-pm = os.environ.get('PM_REPORT', '報告なし')
-finance = os.environ.get('FINANCE_REPORT', '報告なし')
-pr = os.environ.get('PR_REPORT', '報告なし')
-competitor = os.environ.get('COMPETITOR_REPORT', '報告なし')
-googleads = os.environ.get('GOOGLEADS_REPORT', '報告なし')
+SUPA = os.environ.get("AGENT_SUPABASE_URL", "").rstrip("/")
+ANON = os.environ.get("AGENT_SUPABASE_ANON_KEY", "")
+H = {"apikey": ANON, "Authorization": f"Bearer {ANON}"}
 
-prompt = f'''あなたは専属秘書です。以下の各部門の昨日の活動を朝5時の日次報告としてまとめてください。
+def supa(path):
+    return json.loads(_urlopen_with_retry(urllib.request.Request(f"{SUPA}/rest/v1/{path}", headers=H)).read())
 
-エンジニア: {engineer}
-マーケティング: {marketing}
-営業: {sales}
-営業(Webフォーム): {sales_webform}
-CEO: {ceo}
-法務: {legal}
-UX: {ux}
-SEO・GEO: {seo}
-カスタマーサクセス: {cs}
-データアナリスト: {analyst}
-プロダクトマネージャー: {pm}
-財務・経理: {finance}
-広報・PR: {pr}
-競合リサーチ: {competitor}
-Google広告最適化: {googleads}
+since = (datetime.now(timezone.utc) - timedelta(hours=24)).strftime("%Y-%m-%dT%H:%M:%SZ")
+names = {a["agent_key"]: a["name"] for a in supa("agents?select=agent_key,name&role_type=eq.agent")}
+events = supa("agent_events?select=agent_key,status,message,created_at"
+              f"&status=in.(done,error)&created_at=gte.{since}&order=created_at.desc&limit=500")
+
+latest = {}
+for ev in events:
+    msg = (ev.get("message") or "").strip()
+    if not msg or "スキップ" in msg or "skipped" in msg:
+        continue
+    if ev["agent_key"] == "secretary":
+        continue
+    latest.setdefault(ev["agent_key"], ev)
+
+if not latest:
+    print("過去24時間に実稼働した部門はありませんでした。")
+    raise SystemExit(0)
+
+lines = []
+for key, ev in latest.items():
+    status = "（エラー）" if ev["status"] == "error" else ""
+    lines.append(f"{names.get(key, key)}{status}: {ev['message'][:400]}")
+
+prompt = f"""あなたは専属秘書です。以下は過去24時間に各部門が実際に行った作業の記録です。朝の日次報告としてまとめてください。
+
+{chr(10).join(lines)}
 
 以下のルールで出力せよ：
 - 記号（*、#、【】、---等）は一切使わない
 - 箇条書きは「・」のみ使用
 - 各部門は1行以内
+- エラーの部門は必ず含める
 - 最後に「オーナーへ」として今日中にやるべきことを3件以内で端的に記載
-- 重要な部門を優先し、全体320字以内に収める（動きのない部門は省略可）
-- 余計な挨拶・前置き・締めの言葉は不要'''
+- 全体320字以内
+- 余計な挨拶・前置き・締めの言葉は不要"""
 
 payload = json.dumps({
-  'model': 'claude-sonnet-5',
-  'max_tokens': 600,
-  'messages': [{'role': 'user', 'content': prompt}]
+    "model": "claude-sonnet-5",
+    "max_tokens": 600,
+    "messages": [{"role": "user", "content": prompt}],
 }).encode()
-
 req = urllib.request.Request(
-  'https://api.anthropic.com/v1/messages',
-  data=payload,
-  headers={
-    'x-api-key': os.environ['ANTHROPIC_API_KEY'],
-    'anthropic-version': '2023-06-01',
-    'content-type': 'application/json'
-  }
+    "https://api.anthropic.com/v1/messages", data=payload,
+    headers={"x-api-key": os.environ["ANTHROPIC_API_KEY"], "anthropic-version": "2023-06-01", "content-type": "application/json"},
 )
 res = json.loads(_urlopen_with_retry(req).read())
-_text_blocks = [b.get(\"text\",\"\") for b in res.get(\"content\",[]) if b.get(\"type\") == \"text\"]
-print(\"\".join(_text_blocks))
-")
-
-DATE=$(TZ=Asia/Tokyo date '+%Y/%m/%d 朝5時レポート')
-python3 -c "
-import json, urllib.request, os, sys
-
-def _urlopen_with_retry(req, tries=4, base_delay=3):
-    import time, urllib.error
-    for i in range(tries):
-        try:
-            return urllib.request.urlopen(req, timeout=60)
-        except urllib.error.HTTPError as e:
-            if e.code in (429, 500, 502, 503, 529) and i < tries - 1:
-                time.sleep(base_delay * (2 ** i))
-                continue
-            raise
-        except urllib.error.URLError:
-            if i < tries - 1:
-                time.sleep(base_delay * (2 ** i))
-                continue
-            raise
-
-summary = sys.stdin.read()
-text = f'$DATE\n\n{summary}'
-payload = json.dumps({'text': text}).encode()
-
-req = urllib.request.Request(
-  os.environ['SLACK_WEBHOOK'],
-  data=payload,
-  headers={'content-type': 'application/json'}
+print("".join(b.get("text", "") for b in res.get("content", []) if b.get("type") == "text"))
+PYEOF
 )
-_urlopen_with_retry(req)
-" <<< "$SUMMARY"
+
+DATE=$(TZ=Asia/Tokyo date '+%Y/%m/%d 朝の日次レポート')
+SLACK_TEXT="$DATE
+
+$SUMMARY" python3 << 'PYEOF'
+import json, os, urllib.request
+req = urllib.request.Request(os.environ["SLACK_WEBHOOK"], data=json.dumps({"text": os.environ["SLACK_TEXT"]}).encode(),
+                             headers={"content-type": "application/json"})
+urllib.request.urlopen(req, timeout=30)
+PYEOF
 
 echo "$SUMMARY"
