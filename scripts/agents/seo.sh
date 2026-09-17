@@ -54,7 +54,7 @@ prompt = f\"\"\"あなたはfreelance-contract-checkerのSEO・GEOスペシャ�
 
 payload = json.dumps({
   'model': 'claude-sonnet-5',
-  'max_tokens': 1500,
+  'max_tokens': 4000,
   'messages': [{'role': 'user', 'content': prompt}]
 }).encode()
 

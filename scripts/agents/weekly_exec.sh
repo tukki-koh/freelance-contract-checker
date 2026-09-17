@@ -111,13 +111,15 @@ prompt = f"""あなたはフリーランス向け契約書AI診断サービス�
 3. 今週やること3つ（担当＝オーナー or AI社員を明記。具体的で、1週間で終わるもの）
 4. やめるべきこと（あれば1つ）"""
 
-payload = json.dumps({"model": "claude-sonnet-5", "max_tokens": 1200,
+payload = json.dumps({"model": "claude-sonnet-5", "max_tokens": 4000,
                       "messages": [{"role": "user", "content": prompt}]}).encode()
 res = json.loads(_urlopen_with_retry(urllib.request.Request(
     "https://api.anthropic.com/v1/messages", data=payload,
     headers={"x-api-key": os.environ["ANTHROPIC_API_KEY"], "anthropic-version": "2023-06-01", "content-type": "application/json"}),
     timeout=120).read())
 report = "".join(b.get("text", "") for b in res.get("content", []) if b.get("type") == "text").strip()
+if not report:
+    report = f"（レポート生成失敗: stop_reason={res.get('stop_reason')} / content types={[b.get('type') for b in res.get('content', [])]}）"
 
 slack = os.environ.get("SLACK_WEBHOOK", "")
 if slack and report:

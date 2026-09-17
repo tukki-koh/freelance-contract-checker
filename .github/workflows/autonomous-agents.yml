@@ -15,7 +15,7 @@ on:
   workflow_dispatch:
     inputs:
       agent:
-        description: '手動実行（全社員が担当時刻に関係なく実行されます）'
+        description: '手動実行する社員（カンマ区切り。例: weekly_exec,secretary / all で全員）。担当時刻に関係なく実行されます'
         required: false
         default: 'all'
 
@@ -33,6 +33,7 @@ jobs:
   funnel-agent:
     name: 無料診断ファネル監視
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.agent == 'all' || contains(format(',{0},', inputs.agent), ',funnel,') }}
     steps:
       - uses: actions/checkout@v4
       - name: ファネル監視（AI不使用）
@@ -42,6 +43,7 @@ jobs:
   weekly-exec-agent:
     name: 週次経営レポート（CEO室）
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.agent == 'all' || contains(format(',{0},', inputs.agent), ',weekly_exec,') }}
     steps:
       - uses: actions/checkout@v4
       - name: 週次経営レポート実行
@@ -53,6 +55,7 @@ jobs:
   marketing-agent:
     name: マーケティング担当
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.agent == 'all' || contains(format(',{0},', inputs.agent), ',marketing,') }}
     steps:
       - uses: actions/checkout@v4
       - name: マーケティングエージェント実行
@@ -62,6 +65,7 @@ jobs:
   seo-agent:
     name: SEO・GEOスペシャリスト
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.agent == 'all' || contains(format(',{0},', inputs.agent), ',seo,') }}
     steps:
       - uses: actions/checkout@v4
       - name: SEO・GEOエージェント実行
@@ -71,6 +75,7 @@ jobs:
   sales-agent:
     name: 営業担当
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.agent == 'all' || contains(format(',{0},', inputs.agent), ',sales,') }}
     steps:
       - uses: actions/checkout@v4
       - name: 営業エージェント実行
@@ -83,6 +88,7 @@ jobs:
   sales-webform-agent:
     name: 営業担当（Webフォーム経由）
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.agent == 'all' || contains(format(',{0},', inputs.agent), ',sales_webform,') }}
     steps:
       - uses: actions/checkout@v4
       - name: Webフォーム営業リード生成エージェント実行
@@ -92,6 +98,7 @@ jobs:
   finance-agent:
     name: 財務・経理（CFO補佐）
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.agent == 'all' || contains(format(',{0},', inputs.agent), ',finance,') }}
     steps:
       - uses: actions/checkout@v4
       - name: 財務エージェント実行
@@ -103,6 +110,7 @@ jobs:
   legal-agent:
     name: 法務アドバイザー（週1回）
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.agent == 'all' || contains(format(',{0},', inputs.agent), ',legal,') }}
     steps:
       - uses: actions/checkout@v4
       - name: 法務エージェント実行
@@ -112,6 +120,7 @@ jobs:
   secretary-agent:
     name: 専属秘書・進行管理
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.agent == 'all' || contains(format(',{0},', inputs.agent), ',secretary,') }}
     steps:
       - uses: actions/checkout@v4
       - name: 秘書エージェント実行（稼働ログから日報を作成）

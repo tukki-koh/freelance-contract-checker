@@ -77,7 +77,7 @@ prompt = f"""あなたは専属秘書です。以下は過去24時間に各部�
 
 payload = json.dumps({
     "model": "claude-sonnet-5",
-    "max_tokens": 600,
+    "max_tokens": 4000,
     "messages": [{"role": "user", "content": prompt}],
 }).encode()
 req = urllib.request.Request(
@@ -85,7 +85,8 @@ req = urllib.request.Request(
     headers={"x-api-key": os.environ["ANTHROPIC_API_KEY"], "anthropic-version": "2023-06-01", "content-type": "application/json"},
 )
 res = json.loads(_urlopen_with_retry(req).read())
-print("".join(b.get("text", "") for b in res.get("content", []) if b.get("type") == "text"))
+text = "".join(b.get("text", "") for b in res.get("content", []) if b.get("type") == "text").strip()
+print(text or f"（日報生成失敗: stop_reason={res.get('stop_reason')} / content types={[b.get('type') for b in res.get('content', [])]}）")
 PYEOF
 )
 
