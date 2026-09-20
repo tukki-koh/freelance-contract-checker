@@ -17,9 +17,21 @@ SLACK = os.environ.get("SLACK_WEBHOOK", "")
 SITE = "https://freelance-contract-checker.vercel.app"
 H = {"apikey": ANON, "Authorization": f"Bearer {ANON}", "Content-Type": "application/json"}
 
-def call(url, body=None):
+def call(url, body=None, tries=4):
+    # 一時的な通信断（SSLハンドシェイク中の Connection reset 等）で監視自体が落ちないよう再試行する
+    import time
     data = json.dumps(body).encode() if body is not None else None
-    return json.loads(urllib.request.urlopen(urllib.request.Request(url, data=data, headers=H), timeout=20).read())
+    for i in range(tries):
+        try:
+            return json.loads(urllib.request.urlopen(urllib.request.Request(url, data=data, headers=H), timeout=25).read())
+        except urllib.error.HTTPError as e:
+            if e.code in (429, 500, 502, 503, 504) and i < tries - 1:
+                time.sleep(3 * (2 ** i)); continue
+            raise
+        except Exception:
+            if i < tries - 1:
+                time.sleep(3 * (2 ** i)); continue
+            raise
 
 # 前回の監視時刻（購入を二重に通知しないため、それ以降の購入だけを数える）
 prev = call(f"{SUPA}/rest/v1/agent_events?select=created_at&agent_key=eq.funnel&status=eq.done&order=id.desc&limit=1")
