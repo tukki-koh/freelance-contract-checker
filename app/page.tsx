@@ -681,9 +681,14 @@ export default function LandingPage() {
             </div>
             <span className="text-sm font-semibold text-slate-700">ワークシールド｜契約書チェッカー</span>
           </div>
-          <p className="text-xs text-slate-400 text-center sm:text-right max-w-md">
-            AIによる一次チェックツールです。重要な契約の最終判断は弁護士にご相談ください。
-          </p>
+          <div className="text-center sm:text-right max-w-md">
+            <p className="text-xs text-slate-400">
+              AIによる一次チェックツールです。重要な契約の最終判断は弁護士にご相談ください。
+            </p>
+            <Link href="/legal" className="mt-2 inline-block text-xs text-slate-500 hover:text-slate-700 underline">
+              特定商取引法に基づく表記
+            </Link>
+          </div>
         </div>
       </footer>
     </div>
