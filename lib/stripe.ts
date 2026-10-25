@@ -28,9 +28,9 @@ export const PLANS: Record<PlanType, PlanConfig> = {
   corporate: {
     id: 'corporate',
     name: '定額使い放題プラン',
-    price: 980,
+    price: 2980,
     interval: 'month',
-    description: '毎月無制限で契約書を診断できるプラン。人気AIツールの約1/3の価格',
+    description: '毎月無制限で契約書を診断できるプラン。契約トラブル1件の損失は数十万円規模',
     badge: '人気',
     features: [
       '単発プランの全機能',

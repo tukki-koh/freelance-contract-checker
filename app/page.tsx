@@ -223,7 +223,7 @@ export default function LandingPage() {
           <div className="max-w-6xl mx-auto px-6 py-8 grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               { v: '30秒', l: '平均診断時間' },
-              { v: '¥980', l: '使い放題（月額）' },
+              { v: '¥2,980', l: '使い放題（月額）' },
               { v: '¥300〜', l: '1回だけのお試し' },
               { v: '2つの法律', l: 'フリーランス新法・下請法' },
             ].map(({ v, l }) => (
@@ -450,7 +450,7 @@ export default function LandingPage() {
             <div className="rounded-2xl border-2 border-blue-500 bg-gradient-to-br from-blue-50/70 to-indigo-50/40 p-7 relative shadow-lg shadow-blue-600/10">
               <span className="absolute -top-3 left-7 bg-blue-600 text-white text-xs font-bold px-3 py-0.5 rounded-full">いちばん賢い選択</span>
               <p className="text-sm font-semibold text-blue-600 mb-1">契約書チェッカー</p>
-              <p className="text-2xl font-extrabold text-slate-900 mb-4">300円〜<span className="text-xs font-medium text-slate-400"> / 月980円で無制限</span></p>
+              <p className="text-2xl font-extrabold text-slate-900 mb-4">300円〜<span className="text-xs font-medium text-slate-400"> / 月2,980円で無制限</span></p>
               <ul className="space-y-3 text-sm text-slate-700">
                 {['フリーランス新法・下請法に特化', '条文番号を根拠に指摘＋修正案', '汎用AIの約1/3の価格で使い放題'].map((t) => (
                   <li key={t} className="flex items-start gap-2.5">
@@ -523,7 +523,7 @@ export default function LandingPage() {
                   <span className="text-xs font-medium text-blue-600">定額 使い放題</span>
                 </div>
                 <div className="mb-1">
-                  <span className="text-4xl font-extrabold text-slate-900">¥980</span>
+                  <span className="text-4xl font-extrabold text-slate-900">¥2,980</span>
                   <span className="text-slate-400 text-xs ml-1">/ 月</span>
                 </div>
                 <p className="text-xs text-slate-400 mb-5">ChatGPTなど汎用AI（月約3,000円）の約1/3</p>
@@ -534,7 +534,7 @@ export default function LandingPage() {
                   <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />いつでも解約できます</li>
                 </ul>
                 <Link href="/signup?next=/pricing" className="block text-center bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 rounded-xl font-bold transition-all text-sm shadow-lg shadow-blue-600/25">
-                  月980円で使い放題にする
+                  月2,980円で使い放題にする
                 </Link>
               </div>
             </div>
@@ -654,7 +654,7 @@ export default function LandingPage() {
             </h2>
             <p className="text-slate-500 mb-8 leading-relaxed">
               登録なしで、1回だけ無料で診断できます。クレジットカードも不要です。
-              気に入ったら、300円の単発か、月980円の使い放題を選んでいただければ大丈夫です。
+              気に入ったら、300円の単発か、月2,980円の使い放題を選んでいただければ大丈夫です。
             </p>
             <Link
               href="/try"

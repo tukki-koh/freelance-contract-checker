@@ -37,7 +37,7 @@ function UnlockCta({ lockedCount }: { lockedCount: number }) {
       >
         300円で全件を見る <ArrowRight className="h-4 w-4" />
       </Link>
-      <p className="text-xs text-slate-500 mt-3">月980円の使い放題プランもあります</p>
+      <p className="text-xs text-slate-500 mt-3">月2,980円の使い放題プランもあります</p>
     </div>
   )
 }

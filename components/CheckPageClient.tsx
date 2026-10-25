@@ -76,7 +76,7 @@ function Paywall({ reason }: { reason: string }) {
           <div className="flex items-center gap-2 mb-2">
             <Building2 className="h-4 w-4 text-blue-400" />
             <span className="text-sm font-semibold text-slate-100">定額使い放題</span>
-            <span className="text-xs text-slate-400 ml-auto">¥980/月</span>
+            <span className="text-xs text-slate-400 ml-auto">¥2,980/月</span>
           </div>
           <p className="text-xs text-slate-400">月間無制限。人気AIの約1/3で使い放題。</p>
         </div>
