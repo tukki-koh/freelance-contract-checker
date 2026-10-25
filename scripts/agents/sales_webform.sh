@@ -60,8 +60,33 @@ if _already >= DAILY_CAP:
     raise SystemExit(0)
 
 # --- キュー投入を試みる（重複URLはfalse。送信は一切行わない）---
+# 実際に問い合わせフォームがあるページかを確かめる。
+# Claudeが「フォームがある」と言っても、実際は404・トップページ・説明ページのことが多く、
+# 検証しないと送れないリードがキューに溜まり続ける（過去112件中70件がこれだった）。
+def has_contact_form(url):
+    import re, ssl
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    ua = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"}
+    try:
+        html = urllib.request.urlopen(urllib.request.Request(url, headers=ua),
+                                      timeout=15, context=ctx).read(500000).decode("utf-8", "ignore")
+    except Exception as e:
+        print(f"[除外] 到達不可 {url} ({str(e)[:40]})")
+        return False
+    # 問い合わせフォームは本文用の textarea か、外部フォーム埋め込みを必ず持つ
+    if re.search(r"<textarea|formrun\.io|docs\.google\.com/forms|forms\.gle|hubspot.*form", html, re.I):
+        return True
+    print(f"[除外] フォームが見当たらない {url}")
+    return False
+
+
 def queue_lead(org, url, subject, body):
     if not (SUPA_URL and SUPA_ANON and LOG_TOKEN):
+        return False
+    if not has_contact_form(url):
         return False
     payload = json.dumps({
         "p_token": LOG_TOKEN, "p_org": org, "p_contact_url": url,
