@@ -85,15 +85,10 @@ jobs:
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
         run: bash scripts/agents/run.sh sales scripts/agents/sales.sh
 
-  sales-webform-agent:
-    name: 営業担当（Webフォーム経由）
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.agent == 'all' || contains(format(',{0},', inputs.agent), ',sales_webform,') }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Webフォーム営業リード生成エージェント実行
-        id: run
-        run: bash scripts/agents/run.sh sales_webform scripts/agents/sales_webform.sh
+  # 営業担当（Webフォーム経由）は廃止した。
+  # 問い合わせフォームは送信に人の手が必要（約半数がCAPTCHA付き）で、
+  # 2026年7月以降112件積んで1件も送られず、売上も0だった。
+  # 自動で完結するメール営業（sales-agent）に一本化する。
 
   finance-agent:
     name: 財務・経理（CFO補佐）
