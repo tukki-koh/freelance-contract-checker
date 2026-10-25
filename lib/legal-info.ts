@@ -3,7 +3,7 @@
 export const LEGAL_INFO = {
   seller: 'ワークシールド',
   // 運営責任者は実名が必要。未記入のまま公開しないこと（/legal がビルド時に警告する）。
-  operator: '',
+  operator: '月足 昂誠',
   // 所在地・電話番号は、請求があり次第すみやかに開示する方針。
   // 実際に請求が来たら必ず開示すること。
   addressOnRequest: true,
