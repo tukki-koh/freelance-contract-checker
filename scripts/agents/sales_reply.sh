@@ -98,6 +98,8 @@ for num in ids:
     if not mid or mid in processed:
         continue
     # 営業した本人、または同じ会社のドメインからの返信だけを対象にする
+    if sender == GMAIL.lower():
+        continue  # 自分宛・自分発のメールは対象外
     if sender not in contacted and sender.split("@")[-1] not in contacted_domains:
         continue
     candidates.append({
