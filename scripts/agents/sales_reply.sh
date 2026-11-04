@@ -47,8 +47,12 @@ def notify(text):
 
 
 # --- こちらから営業した相手の一覧（返信かどうかの判定に使う）---
-req = urllib.request.Request(f"{SUPA_URL}/rest/v1/sent_sales_emails?select=email,org", headers=HDRS)
-contacted = {r["email"].lower(): (r.get("org") or "") for r in json.loads(urllib.request.urlopen(req, timeout=20).read())}
+# anonキーでの直接SELECTはRLSで0件になるため、トークン付きRPCで取得する。
+contacted = {r["email"].lower(): (r.get("org") or "")
+             for r in (rpc("contacted_emails", {"p_token": LOG_TOKEN}) or [])}
+if not contacted:
+    print("営業済みの宛先を取得できませんでした（トークンまたはRPCを確認）")
+    raise SystemExit(0)
 contacted_domains = {e.split("@")[-1] for e in contacted}
 processed = set(rpc("processed_reply_ids", {"p_token": LOG_TOKEN}) or [])
 print(f"営業済み {len(contacted)}件 / 処理済みの返信 {len(processed)}件")
