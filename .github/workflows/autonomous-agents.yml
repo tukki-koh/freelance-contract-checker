@@ -85,6 +85,19 @@ jobs:
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
         run: bash scripts/agents/run.sh sales scripts/agents/sales.sh
 
+  sales-reply-agent:
+    name: 営業返信の自動対応
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.agent == 'all' || contains(format(',{0},', inputs.agent), ',sales_reply,') }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: 営業返信対応エージェント実行
+        id: run
+        env:
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: bash scripts/agents/run.sh sales_reply scripts/agents/sales_reply.sh
+
   # 営業担当（Webフォーム経由）は廃止した。
   # 問い合わせフォームは送信に人の手が必要（約半数がCAPTCHA付き）で、
   # 2026年7月以降112件積んで1件も送られず、売上も0だった。

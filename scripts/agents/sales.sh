@@ -64,6 +64,24 @@ if already >= DAILY_CAP:
     print(f"本日はすでに上限 {already}/{DAILY_CAP} 件に到達しているため終了")
     raise SystemExit(0)
 
+# --- 配信停止・断りの宛先（二度と送らない）---
+def optout_emails():
+    if not (SUPA_URL and SUPA_ANON and LOG_TOKEN):
+        return set()
+    try:
+        req = urllib.request.Request(
+            f"{SUPA_URL}/rest/v1/rpc/optout_emails",
+            data=json.dumps({"p_token": LOG_TOKEN}).encode(), headers=HDRS)
+        return {e.lower() for e in json.loads(urllib.request.urlopen(req, timeout=10).read())}
+    except Exception as e:
+        print(f"[配信停止リストの取得失敗（続行）] {e}")
+        return set()
+
+OPTOUT = optout_emails()
+if OPTOUT:
+    print(f"配信停止リスト: {len(OPTOUT)}件")
+
+
 # --- 送信権を原子的に取得（未送信 かつ 本日上限未満なら true）---
 def claim_email(email, org, subject):
     if not (SUPA_URL and SUPA_ANON and LOG_TOKEN):
@@ -114,6 +132,8 @@ def validate_recipient(email):
     email = email.strip().lower()
     if not EMAIL_RE.match(email):
         return False, "形式不正"
+    if email in OPTOUT:
+        return False, "配信停止・お断りの宛先"
     local, _, domain = email.partition("@")
     if local in BANNED_LOCAL:
         return False, f"プレースホルダ的なローカル部({local})"
