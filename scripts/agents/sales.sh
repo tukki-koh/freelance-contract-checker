@@ -32,6 +32,7 @@ def _urlopen_with_retry(req, tries=4, base_delay=3, timeout=180):
 from datetime import date, datetime, timezone, timedelta
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.utils import formataddr
 
 GMAIL_ADDRESS = os.environ.get("GMAIL_ADDRESS", "")
 GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "")
@@ -181,14 +182,37 @@ Web検索ツールを使い、上記の狙う組織のうち
 その他の条件：
 - 一般問い合わせ先（info@ / contact@ 等）のみ。個人アドレスは不可。
 - 各社バラバラの相手にする（重複させない）。
-- 本文は250字以内。次の順で書く：
-  ①相手の会員・登録者が実際に困っていること（契約書の確認、未払い、一方的な契約解除）に具体的に触れる
-  ②登録不要・無料で1分で試せる診断があること（URLを明記）
-  ③会員向けの案内やニュースレターで紹介してもらえないか、と依頼する
-  ④費用は一切かからないこと、掲載料も求めないことを明記する
-- 売り込まない。相手の会員にとっての利点だけを書く。自社の料金プランには触れない。
+【文面の作り方】これまで179件送って返信が1件も来ていない。原因は
+「件名が広告に見える」「相手に手間だけを頼んでいる」「テンプレートに見える」の3つ。
+次のとおりに書き直すこと。
+
+■件名（25字以内）
+- 「ご案内」「ご紹介」「お願い」「依頼」という語を使ってはならない。広告と判断されて開かれない。
+- 相手の会員が実際に困る場面を、そのまま短く書く。例：「契約書を見てほしいと相談されたとき」
+- 組織名を件名に入れない。一斉送信に見える。
+
+■本文（350字以内。1行40字程度で改行し、段落の間に空行を入れる）
+①書き出し：相手の組織が何をしているかに1文触れる。Web検索で分かった具体的な事実を使う
+  （拠点の街、対象の職種、スクール名、運営年数など）。一般論から始めてはならない。
+②相手の現場で実際に起きること：会員やご利用者から契約の相談を受けたとき、
+  専門家でないと答えにくい、という場面を書く。
+③こちらの提案：登録不要・無料で1分で試せる契約書診断があること、URLを明記する。
+  そして「相談されたときに渡せる先として、URLを控えておいていただくだけで構いません」と書く。
+  掲載も返信も必須ではないこと、費用も掲載料もかからないことを明記する。
+④最後に質問を1つだけ置く：「会員の方から契約まわりのご相談は実際に届きますか？」のように、
+  一言で答えられる質問にする。長い質問や複数の質問は禁止。
+
+■禁止
+- 「ぜひ」「ご検討ください」「お力になれれば」などの常套句
+- 料金プランへの言及（無料診断だけを伝える）
+- 誇張（必ず防げる、法的に安全になる等）。診断はAIによる参考情報であり法的助言ではない。
+- 全社で同じ文面になること。①は必ず各社で変える。
+
 - 特定電子メール法に配慮し、末尾に「不要の場合は本メールへの返信で配信停止できます」を入れる。
-- 署名: ワークシールド営業部 / https://freelance-contract-checker.vercel.app
+- 署名は次の形にする：
+  --
+  ワークシールド　月足 昂誠
+  https://freelance-contract-checker.vercel.app
 
 最終回答は以下の形式のみで出力（前置き・説明は不要）：
 ===
@@ -263,7 +287,12 @@ for t in targets:
         continue  # 送信済み or 本日上限到達
     try:
         msg = MIMEMultipart()
-        msg["From"] = GMAIL_ADDRESS; msg["To"] = email; msg["Subject"] = subject
+        # 差出人がメールアドレスだけだと、受信側に迷惑メールらしく見えて開かれない。
+        # 名乗りを表示名に入れる。
+        msg["From"] = formataddr(("ワークシールド 月足昂誠", GMAIL_ADDRESS))
+        msg["To"] = email
+        msg["Subject"] = subject
+        msg["Reply-To"] = GMAIL_ADDRESS
         msg.attach(MIMEText(body, "plain", "utf-8"))
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)

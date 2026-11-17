@@ -21,23 +21,38 @@ const lawLabels: Record<string, string> = {
 
 function UnlockCta({ lockedCount }: { lockedCount: number }) {
   return (
-    <div className="rounded-2xl border border-blue-500/40 bg-gradient-to-br from-blue-600/15 to-indigo-600/10 p-6 text-center">
-      <p className="text-base font-bold text-slate-100 mb-1">
-        {lockedCount > 0
-          ? `残り${lockedCount}件の指摘と修正案を見る`
-          : 'この契約書の修正案をすべて確認する'}
+    <div className="rounded-2xl border border-amber-500/50 bg-gradient-to-br from-amber-500/10 to-blue-600/10 p-6">
+      <div className="flex items-center gap-2 mb-2">
+        <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0" />
+        <p className="text-base font-bold text-slate-100">
+          {lockedCount > 0
+            ? `あと${lockedCount}件のリスクを放置していませんか？`
+            : 'この契約書の修正案をすべて確認する'}
+        </p>
+      </div>
+      <p className="text-sm text-slate-300 mb-2 leading-relaxed">
+        このまま契約すると、後で<span className="text-amber-300 font-semibold">報酬未払い・一方的な契約変更</span>のリスクがあります。
       </p>
       <p className="text-sm text-slate-400 mb-5">
-        登録して単発プラン（300円）で本診断すると、全項目の問題点・根拠条文・そのまま使える修正案が見られます。
+        本診断（300円・1回）で<span className="text-white font-medium">全指摘の条文番号・そのまま使える修正案</span>が受け取れます。
       </p>
-      <Link
-        href="/signup?next=/pricing"
-        onClick={() => window.gtag?.('event', 'trial_unlock_click', { locked: lockedCount })}
-        className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-7 py-3 rounded-xl font-bold text-sm transition-all"
-      >
-        300円で全件を見る <ArrowRight className="h-4 w-4" />
-      </Link>
-      <p className="text-xs text-slate-500 mt-3">月2,980円の使い放題プランもあります</p>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <Link
+          href="/signup?next=/pricing&plan=single"
+          onClick={() => window.gtag?.('event', 'trial_unlock_click', { locked: lockedCount, plan: 'single' })}
+          className="flex-1 inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-900 px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-lg shadow-amber-500/20"
+        >
+          300円で修正案を受け取る <ArrowRight className="h-4 w-4" />
+        </Link>
+        <Link
+          href="/signup?next=/pricing&plan=corporate"
+          onClick={() => window.gtag?.('event', 'trial_unlock_click', { locked: lockedCount, plan: 'corporate' })}
+          className="flex-1 inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold text-sm transition-all"
+        >
+          月2,980円・使い放題で始める
+        </Link>
+      </div>
+      <p className="text-xs text-slate-500 mt-3 text-center">登録3分・すぐに診断できます</p>
     </div>
   )
 }
